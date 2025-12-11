@@ -1,12 +1,12 @@
 
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, HTMLMotionProps } from 'framer-motion';
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
-interface ParticleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ParticleButtonProps extends HTMLMotionProps<"button"> {
     isLoading?: boolean;
     variant?: 'primary' | 'secondary';
 }
@@ -21,21 +21,20 @@ export function ParticleButton({ children, className, isLoading, onClick, varian
 
         const newParticles = Array.from({ length: count }).map((_, i) => ({
             id: Date.now() + i,
-            x: 'client' in e ? (e.clientX - rect.left) : rect.width / 2,
-            y: 'client' in e ? (e.clientY - rect.top) : rect.height / 2,
+            x: 'clientX' in e ? ((e as React.MouseEvent).clientX - rect.left) : rect.width / 2,
+            y: 'clientY' in e ? ((e as React.MouseEvent).clientY - rect.top) : rect.height / 2,
             angle: Math.random() * 360,
             color: ['#6366f1', '#a855f7', '#ec4899'][Math.floor(Math.random() * 3)] // Prism colors
         }));
 
         setParticles(prev => [...prev.slice(-20), ...newParticles]);
 
-        // Cleanup happens via animation finish ideally, but we'll let React key thrashing handle it for this demo or use timeout
         setTimeout(() => {
             setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id)));
         }, 1000);
     };
 
-    const handleMouseEnter = (e: React.MouseEvent) => {
+    const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
         createParticles(e, 5, 20); // Small burst on hover enter
         props.onMouseEnter?.(e);
     };
@@ -62,7 +61,7 @@ export function ParticleButton({ children, className, isLoading, onClick, varian
         >
             <span className="relative z-10 flex items-center justify-center gap-2">
                 {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {children}
+                {children as React.ReactNode}
             </span>
 
             {/* Particle Overlay */}

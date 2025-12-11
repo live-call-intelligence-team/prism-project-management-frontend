@@ -10,19 +10,19 @@ const WARNING_TIME_2 = 5 * 60; // 5 minutes
 export function useSessionTimeout() {
     const router = useRouter();
     const { warning, error: showError } = useToast();
-    const clearUser = useAuthStore((state) => state.clearUser);
+    const logout = useAuthStore((state) => state.logout);
 
     const [timeRemaining, setTimeRemaining] = useState(SESSION_DURATION);
     const [showWarningModal, setShowWarningModal] = useState(false);
     const [hasShownWarning1, setHasShownWarning1] = useState(false);
 
     const handleLogout = useCallback(() => {
-        clearUser();
+        logout();
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         showError('Session expired', 'Please sign in again to continue');
         router.push('/login');
-    }, [clearUser, showError, router]);
+    }, [logout, showError, router]);
 
     const extendSession = useCallback(() => {
         setTimeRemaining(SESSION_DURATION);

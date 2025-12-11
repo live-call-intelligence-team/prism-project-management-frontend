@@ -63,6 +63,8 @@ export interface Sprint {
     id: string;
     name: string;
     goal?: string;
+    notes?: string;
+    plannedPoints?: number;
     status: 'PLANNED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
     startDate?: string;
     endDate?: string;

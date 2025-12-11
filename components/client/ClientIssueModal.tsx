@@ -258,16 +258,12 @@ export function ClientIssueModal({ issue: initialIssue, isOpen, onClose, onUpdat
                                         disabled={uploading}
                                     />
                                     <label htmlFor="modal-file-upload">
-                                        <Button
-                                            as="span"
-                                            size="sm"
-                                            variant="ghost"
-                                            className="h-6 px-2 text-xs hover:text-primary cursor-pointer"
-                                            disabled={uploading}
+                                        <span
+                                            className="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 h-6 px-2 text-xs hover:text-primary cursor-pointer gap-1"
                                         >
                                             {uploading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Upload className="w-3 h-3 mr-1" />}
                                             Add File
-                                        </Button>
+                                        </span>
                                     </label>
                                 </div>
                             </div>

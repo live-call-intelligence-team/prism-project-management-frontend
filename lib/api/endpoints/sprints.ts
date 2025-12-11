@@ -27,8 +27,8 @@ export interface Sprint {
             avatar?: string;
         };
     }[];
-    createdAt?: string;
-    updatedAt?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface SprintStatistics {

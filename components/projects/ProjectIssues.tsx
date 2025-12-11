@@ -315,10 +315,9 @@ export function ProjectIssues({ projectId, initialView = 'list', hideViewToggle 
                             // The backend enum is TO DO, IN PROGRESS, DONE.
                             // The frontend keys are TODO, IN_PROGRESS, DONE.
                             // We should normalize.
+                            // We should normalize.
                             let statusKey = issue.status; // Default
-                            if (issue.status === 'TO DO') statusKey = 'TODO';
-                            if (issue.status === 'IN PROGRESS') statusKey = 'IN_PROGRESS';
-                            if (issue.status === 'IN REVIEW') statusKey = 'IN_REVIEW'; // If exists
+
 
                             if (groupColumns[statusKey]) {
                                 groupColumns[statusKey].push(issue);

@@ -19,12 +19,12 @@ const projectSchema = z.object({
     startDate: z.string().optional(),
     endDate: z.string().optional(),
     type: z.enum(['SCRUM', 'KANBAN', 'WATERFALL']),
-    usesEpics: z.boolean().default(true),
-    usesSprints: z.boolean().default(false),
+    usesEpics: z.boolean(),
+    usesSprints: z.boolean(),
     leadId: z.string().optional(),
     projectManagerId: z.string().optional(),
     scrumMasterId: z.string().optional(),
-    memberIds: z.array(z.string()).default([]),
+    memberIds: z.array(z.string()),
     visibility: z.enum(['PUBLIC', 'PRIVATE']),
 });
 

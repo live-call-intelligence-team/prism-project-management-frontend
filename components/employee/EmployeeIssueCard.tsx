@@ -18,7 +18,7 @@ export function EmployeeIssueCard({ issue, onClick, groupByEpic }: EmployeeIssue
         transform,
         transition,
         isDragging
-    } = useSortable({ id: issue.id, data: { status: issue.status, ...issue } });
+    } = useSortable({ id: issue.id, data: { ...issue } });
 
     const style = {
         transform: CSS.Transform.toString(transform),

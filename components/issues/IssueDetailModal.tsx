@@ -221,7 +221,7 @@ export function IssueDetailModal({ issueId, isOpen, onClose, onUpdate }: IssueDe
                             <div className="flex items-center gap-2 mb-2">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">Activity</h3>
                             </div>
-                            <CommentSection issueId={issue.id} />
+                            <CommentSection issueId={issue.id} projectId={issue.projectId} />
                         </div>
                     </div>
 
