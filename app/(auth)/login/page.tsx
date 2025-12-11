@@ -13,7 +13,7 @@ import { SplashScreen } from '@/components/ui/SplashScreen';
 import { MorphingBackground } from '@/components/ui/MorphingBackground'; // Ensure this is imported
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -38,7 +38,7 @@ export default function LoginPage() {
             const payload = isEmail ? { email: loginId, password } : { username: loginId, password };
 
             // Call backend API
-            const response = await axios.post('http://localhost:5000/api/v1/auth/login', payload);
+            const response = await axios.post(`${API_URL}/auth/login`, payload);
 
             if (response.data.success) {
                 const { user, accessToken, forcePasswordChange } = response.data.data;
