@@ -104,8 +104,12 @@ export function SprintModal({
     };
 
     const handleDurationSelect = (days: number) => {
-        if (!startDate) return;
-        const start = new Date(startDate);
+        let start = startDate ? new Date(startDate) : new Date();
+        if (!startDate) {
+            const today = new Date().toISOString().split('T')[0];
+            setStartDate(today);
+            start = new Date(today);
+        }
         const end = addDays(start, days);
         setEndDate(format(end, 'yyyy-MM-dd'));
     };
