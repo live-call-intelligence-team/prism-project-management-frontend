@@ -119,7 +119,7 @@ export default function MyIssuesPage() {
                         </p>
                     </div>
                     <Link href="/client/projects">
-                        <button className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                        <button className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors shadow-sm">
                             + Raise New Issue via Project
                         </button>
                     </Link>
