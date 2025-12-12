@@ -27,7 +27,7 @@ interface ClientRaiseIssueModalProps {
     isOpen: boolean;
     onClose: () => void;
     projectId: string; // Required context
-    onSuccess: () => void;
+    onSuccess: (issueId?: string) => void;
 }
 
 export function ClientRaiseIssueModal({ isOpen, onClose, projectId, onSuccess }: ClientRaiseIssueModalProps) {
@@ -86,7 +86,7 @@ export function ClientRaiseIssueModal({ isOpen, onClose, projectId, onSuccess }:
             setStep('success');
             setTimeout(() => {
                 onClose();
-                onSuccess();
+                onSuccess(createdIssue.id);
                 // Reset form
                 setStep('form');
                 setTitle('');
@@ -98,7 +98,8 @@ export function ClientRaiseIssueModal({ isOpen, onClose, projectId, onSuccess }:
 
         } catch (error) {
             console.error("Failed to raise issue", error);
-            // Show error toast?
+            // In a real app, use a toast library here
+            alert("Failed to raise issue. Please check your connection and attachments.");
         } finally {
             setIsSubmitting(false);
         }
@@ -150,7 +151,7 @@ export function ClientRaiseIssueModal({ isOpen, onClose, projectId, onSuccess }:
                         Your issue has been submitted to the project team. This window will close automatically.
                     </p>
                     <div className="flex gap-4 mt-6">
-                        <Button onClick={onSuccess}>View Issue</Button>
+                        <Button onClick={() => onSuccess(issueId!)}>View Issue</Button>
                         <Button variant="outline" onClick={() => {
                             setStep('form');
                             setTitle('');

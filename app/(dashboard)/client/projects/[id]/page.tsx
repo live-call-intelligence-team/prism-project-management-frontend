@@ -263,7 +263,10 @@ export default function ClientProjectDetailPage() {
                 isOpen={isRaiseIssueModalOpen}
                 onClose={() => setIsRaiseIssueModalOpen(false)}
                 projectId={projectId}
-                onSuccess={() => {
+                onSuccess={(newIssueId) => {
+                    // Switch to tasks tab to show the new issue
+                    setActiveTab('tasks');
+
                     // Refresh project data to update stats
                     const fetchProjectDetail = async () => {
                         try {
