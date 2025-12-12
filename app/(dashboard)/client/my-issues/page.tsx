@@ -118,9 +118,9 @@ export default function MyIssuesPage() {
                             Track issues you've raised and their approval status
                         </p>
                     </div>
-                    <Link href="/client/dashboard">
+                    <Link href="/client/projects">
                         <button className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
-                            + Raise New Issue
+                            + Raise New Issue via Project
                         </button>
                     </Link>
                 </div>
