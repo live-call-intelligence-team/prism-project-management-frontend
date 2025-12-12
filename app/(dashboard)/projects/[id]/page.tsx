@@ -23,7 +23,10 @@ import {
     Layers,
     Book,
     LayoutGrid,
-    List as ListIcon
+    List as ListIcon,
+    Code,
+    CheckSquare,
+    Palette
 } from 'lucide-react';
 import { cn, getInitials } from '@/lib/utils';
 import { projectsApi, Project } from '@/lib/api/endpoints/projects';
@@ -36,6 +39,11 @@ const getRoleIcon = (role: string) => {
     switch (role) {
         case 'LEAD': return Crown;
         case 'ADMIN': return Shield;
+        case 'DEVELOPER': return Code;
+        case 'QA_TESTER': return CheckSquare;
+        case 'DESIGNER': return Palette;
+        case 'SCRUM_MASTER': return Users; // Or specialized icon
+        case 'PROJECT_MANAGER': return BarChart3;
         default: return UserIcon;
     }
 };
@@ -44,6 +52,11 @@ const getRoleColor = (role: string) => {
     switch (role) {
         case 'LEAD': return 'text-yellow-600 dark:text-yellow-400';
         case 'ADMIN': return 'text-purple-600 dark:text-purple-400';
+        case 'DEVELOPER': return 'text-blue-600 dark:text-blue-400';
+        case 'QA_TESTER': return 'text-green-600 dark:text-green-400';
+        case 'DESIGNER': return 'text-pink-600 dark:text-pink-400';
+        case 'SCRUM_MASTER': return 'text-orange-600 dark:text-orange-400';
+        case 'PROJECT_MANAGER': return 'text-indigo-600 dark:text-indigo-400';
         default: return 'text-gray-600 dark:text-gray-400';
     }
 };
@@ -132,16 +145,18 @@ export default function ProjectDetailsPage() {
         }
     };
 
-    const handleAddMember = async (data: any) => {
+    const handleAddMember = async (data: { userIds: string[], role: string }) => {
         if (!project) return;
         try {
-            await projectsApi.addMember(project.id, data.userId, data.role);
-            success('Member added successfully');
+            await Promise.all(data.userIds.map(userId =>
+                projectsApi.addMember(project.id, userId, data.role)
+            ));
+            success('Members added successfully');
             fetchProject();
             setIsAddMemberModalOpen(false);
         } catch (err) {
-            console.error('Failed to add member:', err);
-            error('Failed to add member');
+            console.error('Failed to add members:', err);
+            error('Failed to add members');
         }
     };
 
@@ -176,17 +191,19 @@ export default function ProjectDetailsPage() {
     if (role === 'ADMIN') {
         tabs = [
             { id: 'overview', label: 'Overview', icon: BarChart3 },
+            { id: 'backlog', label: 'Planning', icon: ListIcon },
             ...(project.usesEpics ? [
                 { id: 'epics', label: 'Epics', icon: Layers },
                 { id: 'features', label: 'Features', icon: Book },
             ] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
             { id: 'board', label: 'Board', icon: LayoutGrid },
-            // Reports... optional or alias to Overview? keeping pure for now.
+            { id: 'team', label: 'Team', icon: Users },
         ];
     } else if (role === 'SCRUM_MASTER') {
         tabs = [
             { id: 'overview', label: 'Overview', icon: BarChart3 },
+            { id: 'backlog', label: 'Planning', icon: ListIcon },
             ...(project.usesEpics ? [
                 { id: 'epics', label: 'Epics', icon: Layers },
                 { id: 'features', label: 'Features', icon: Book },
@@ -194,36 +211,23 @@ export default function ProjectDetailsPage() {
             ...(project.usesSprints ? [{ id: 'sprints', label: 'Sprints', icon: Calendar }] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
             { id: 'board', label: 'Board', icon: LayoutGrid },
+            { id: 'team', label: 'Team', icon: Users },
         ];
     } else if (role === 'CLIENT') {
-        tabs = [
-            { id: 'overview', label: 'Overview', icon: BarChart3 },
-            { id: 'epics', label: 'Epics', icon: Layers },
-            { id: 'features', label: 'Features', icon: Book },
-            // Progress -> Reports/Overview alias? Or maybe Sprints (view only)? User asked for "Progress" and "Feedback".
-            // I will add placeholders or reuse existing tabs with different labels if needed.
-            // For Feedback, I'll use the 'issues' tab but label it 'Feedback' or ensure it fits.
-            // Actually, "Feedback Tab -> [+ Add Feedback]" implies creating an issue/comment.
-            // I'll make a custom Feedback view or alias it.
-            // Let's assume 'issues' can be the "Feedback" for now or use 'backlog' as placeholder.
-            // But to match request strictly:
-            // "Progress" tab. I'll alias 'overview' or 'sprints'? 
-            // "Feedback" tab. 
-        ];
-        // Revising Client tabs based on prompt:
-        // Overview, Epics (View), Features (View), Progress, Feedback.
+        // ... Client tabs same ...
         tabs = [
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             ...(project.usesEpics ? [
                 { id: 'epics', label: 'Epics', icon: Layers },
                 { id: 'features', label: 'Features', icon: Book },
             ] : []),
-            { id: 'sprints', label: 'Progress', icon: BarChart }, // Reusing Sprints as Progress (timeline)
-            { id: 'feedback', label: 'Feedback', icon: ListTodo }, // New ID for feedback
+            { id: 'sprints', label: 'Progress', icon: BarChart },
+            { id: 'feedback', label: 'Feedback', icon: ListTodo },
         ];
     } else if (role === 'PROJECT_MANAGER') {
         tabs = [
             { id: 'overview', label: 'Overview', icon: BarChart3 },
+            { id: 'backlog', label: 'Planning', icon: ListIcon },
             ...(project.usesEpics ? [
                 { id: 'epics', label: 'Epics', icon: Layers },
                 { id: 'features', label: 'Features', icon: Book },
@@ -231,10 +235,10 @@ export default function ProjectDetailsPage() {
             ...(project.usesSprints ? [{ id: 'sprints', label: 'Sprints', icon: Calendar }] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
             { id: 'board', label: 'Board', icon: LayoutGrid },
+            { id: 'team', label: 'Team', icon: Users },
         ];
     } else {
         // Employee
-        // Likely shouldn't be here often if "My Work" is focus, but if they do:
         tabs = [
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'issues', label: 'Issues', icon: ListTodo },
@@ -272,43 +276,50 @@ export default function ProjectDetailsPage() {
                     </div>
 
                     <div className="flex items-center space-x-3">
-                        <button className="p-2 text-gray-400 hover:text-gray-500">
+                        <button
+                            onClick={() => setActiveTab('team')}
+                            className="p-2 text-gray-400 hover:text-gray-500"
+                            title="Team Members"
+                        >
                             <Users className="w-5 h-5" />
                         </button>
                         <button
                             onClick={() => setActiveTab('settings')}
                             className="p-2 text-gray-400 hover:text-gray-500"
+                            title="Project Settings"
                         >
                             <Settings className="w-5 h-5" />
                         </button>
                     </div>
-                </div>
+                </div >
 
                 {/* Tabs */}
-                {activeTab !== 'settings' && (
-                    <div className="px-6 flex space-x-6 overflow-x-auto no-scrollbar">
-                        {tabs.map((tab: any) => {
-                            const Icon = tab.icon;
-                            const isActive = activeTab === tab.id;
-                            return (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={cn(
-                                        "flex items-center space-x-2 pb-3 border-b-2 text-sm font-medium transition-colors whitespace-nowrap",
-                                        isActive
-                                            ? "border-primary-500 text-primary-600 dark:text-primary-400"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                                    )}
-                                >
-                                    <Icon className="w-4 h-4" />
-                                    <span>{tab.label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+                {
+                    activeTab !== 'settings' && (
+                        <div className="px-6 flex space-x-6 overflow-x-auto no-scrollbar">
+                            {tabs.map((tab: any) => {
+                                const Icon = tab.icon;
+                                const isActive = activeTab === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={cn(
+                                            "flex items-center space-x-2 pb-3 border-b-2 text-sm font-medium transition-colors whitespace-nowrap",
+                                            isActive
+                                                ? "border-primary-500 text-primary-600 dark:text-primary-400"
+                                                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        )}
+                                    >
+                                        <Icon className="w-4 h-4" />
+                                        <span>{tab.label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )
+                }
+            </div >
 
             <div className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-900">
                 {activeTab === 'overview' && (
@@ -597,6 +608,6 @@ export default function ProjectDetailsPage() {
                     />
                 )
             }
-        </div>
+        </div >
     );
 }

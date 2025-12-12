@@ -138,6 +138,8 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                 ...data,
                 startDate: data.startDate || null,
                 endDate: data.endDate || null,
+                leadId: data.scrumMasterId || null, // Project Lead = Scrum Master
+                memberIds: [], // Don't assign members on creation
             };
             await onSubmit(submissionData);
             onClose();
@@ -320,103 +322,58 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                                         Team Assignment
                                     </h3>
                                     <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Client Representative
-                                            </label>
-                                            <select
-                                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                                                {...register('clientId')}
-                                            >
-                                                <option value="">Select a Client...</option>
-                                                {clients.map(user => (
-                                                    <option key={user.id} value={user.id}>
-                                                        {user.firstName} {user.lastName} ({user.email})
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <p className="text-xs text-gray-500 mt-1">Assigning a client allows them to view this project in their dashboard.</p>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Project Manager
-                                            </label>
-                                            <select
-                                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                                                {...register('projectManagerId')}
-                                            >
-                                                <option value="">Select a Project Manager...</option>
-                                                {projectManagers.map(user => (
-                                                    <option key={user.id} value={user.id}>
-                                                        {user.firstName} {user.lastName}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Scrum Master
-                                            </label>
-                                            <select
-                                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                                                {...register('scrumMasterId')}
-                                            >
-                                                <option value="">Select a Scrum Master...</option>
-                                                {scrumMasters.map(user => (
-                                                    <option key={user.id} value={user.id}>
-                                                        {user.firstName} {user.lastName}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Tech Lead / Project Lead
-                                            </label>
-                                            <select
-                                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                                                {...register('leadId')}
-                                            >
-                                                <option value="">Select a user...</option>
-                                                {/* Tech Lead can be anyone, usually Senior Dev or SM. Using SM list + Employees for now or just All */}
-                                                {/* Reusing ScrumMasters list for now as they are likely leads, or should we filter Senior Employees? */}
-                                                {/* For simplicity, let's allow SMs or Employees to be leads */}
-                                                {[...scrumMasters, ...employees].map(user => (
-                                                    <option key={user.id} value={user.id}>
-                                                        {user.firstName} {user.lastName} ({user.email})
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Team Members
-                                            </label>
-                                            <div className="border border-gray-200 dark:border-gray-700 rounded-lg max-h-40 overflow-y-auto p-2 bg-white dark:bg-gray-900">
-                                                {employees.length === 0 ? (
-                                                    <p className="text-xs text-gray-500 p-2 text-center">No available employees found.</p>
-                                                ) : (
-                                                    <div className="space-y-1">
-                                                        {employees.map(user => (
-                                                            <label key={user.id} className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    value={user.id}
-                                                                    className="w-4 h-4 text-primary-600 rounded border-gray-300"
-                                                                    {...register('memberIds')}
-                                                                />
-                                                                <span className="text-sm">{user.firstName} {user.lastName}</span>
-                                                                <span className="text-xs text-gray-500 ml-auto">{user.email}</span>
-                                                            </label>
-                                                        ))}
-                                                    </div>
-                                                )}
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                    Project Manager
+                                                </label>
+                                                <select
+                                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                                                    {...register('projectManagerId')}
+                                                >
+                                                    <option value="">Select a Project Manager...</option>
+                                                    {projectManagers.map(user => (
+                                                        <option key={user.id} value={user.id}>
+                                                            {user.firstName} {user.lastName}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-1">Select multiple team members to add to this project.</p>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                    Scrum Master (Project Lead)
+                                                </label>
+                                                <select
+                                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                                                    {...register('scrumMasterId')}
+                                                >
+                                                    <option value="">Select a Scrum Master...</option>
+                                                    {scrumMasters.map(user => (
+                                                        <option key={user.id} value={user.id}>
+                                                            {user.firstName} {user.lastName}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                    Client Representative
+                                                </label>
+                                                <select
+                                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                                                    {...register('clientId')}
+                                                >
+                                                    <option value="">Select a Client...</option>
+                                                    {clients.map(user => (
+                                                        <option key={user.id} value={user.id}>
+                                                            {user.firstName} {user.lastName} ({user.email})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <p className="text-xs text-gray-500 mt-1">Assigning a client allows them to view this project in their dashboard.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </section>

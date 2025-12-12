@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Fragment, useState, useEffect } from 'react';
@@ -7,29 +6,27 @@ import { X, UserPlus, Search } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { usersApi } from '@/lib/api/endpoints/users';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/components/ui/Toast';
+// import { useToast } from '@/components/ui/Toast'; // Unused in this file if errors handled by parent
 
 interface AddMemberModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (userId: string, role: string) => Promise<void>;
-    projectId: string; // To check existing members if needed
+    onSubmit: (data: { userIds: string[], role: string }) => Promise<void>;
+    projectId: string;
 }
 
 export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemberModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [users, setUsers] = useState<any[]>([]);
-    const [selectedUser, setSelectedUser] = useState<string | null>(null);
-    const [selectedRole, setSelectedRole] = useState('MEMBER');
-    const { error: toastError } = useToast();
+    const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
+    const [selectedRole, setSelectedRole] = useState('DEVELOPER'); // Default
 
     // Debounce search
     useEffect(() => {
         const timer = setTimeout(async () => {
             if (searchTerm.length >= 2) {
                 try {
-                    // Need to verify if usersApi has search, if not assume getAll works
                     const data = await usersApi.getAll({ search: searchTerm, limit: 10 });
                     setUsers(data.users);
                 } catch (e) {
@@ -43,18 +40,27 @@ export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemb
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
+    const toggleUser = (user: any) => {
+        if (selectedUsers.find(u => u.id === user.id)) {
+            setSelectedUsers(selectedUsers.filter(u => u.id !== user.id));
+        } else {
+            setSelectedUsers([...selectedUsers, user]);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedUser) return;
+        if (selectedUsers.length === 0) return;
 
         setIsLoading(true);
         try {
-            await onSubmit(selectedUser, selectedRole);
+            await onSubmit({ userIds: selectedUsers.map(u => u.id), role: selectedRole });
             onClose();
-            setSelectedUser(null);
+            setSelectedUsers([]);
             setSearchTerm('');
         } catch (error) {
-            // Error handled by parent or toast
+            // Error handled by parent
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
@@ -121,31 +127,47 @@ export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemb
                                     {/* User List */}
                                     {users.length > 0 && (
                                         <div className="max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-                                            {users.map(user => (
-                                                <div
-                                                    key={user.id}
-                                                    onClick={() => setSelectedUser(user.id)}
-                                                    className={cn(
-                                                        "px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between",
-                                                        selectedUser === user.id ? "bg-primary-50 dark:bg-primary-900/20" : ""
-                                                    )}
-                                                >
-                                                    <div>
-                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                                            {user.firstName} {user.lastName}
+                                            {users.map(user => {
+                                                const isSelected = selectedUsers.some(u => u.id === user.id);
+                                                return (
+                                                    <div
+                                                        key={user.id}
+                                                        onClick={() => toggleUser(user)}
+                                                        className={cn(
+                                                            "px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between",
+                                                            isSelected ? "bg-primary-50 dark:bg-primary-900/20" : ""
+                                                        )}
+                                                    >
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                {user.firstName} {user.lastName}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                                {user.email}
+                                                            </div>
                                                         </div>
-                                                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {user.email}
-                                                        </div>
+                                                        {isSelected && (
+                                                            <div className="text-primary-600 text-xs font-medium">Selected</div>
+                                                        )}
                                                     </div>
-                                                    {selectedUser === user.id && (
-                                                        <div className="text-primary-600 text-xs font-medium">Selected</div>
-                                                    )}
-                                                </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+
+                                    {/* Selected Summary */}
+                                    {selectedUsers.length > 0 && (
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedUsers.map(u => (
+                                                <span key={u.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
+                                                    {u.firstName} {u.lastName}
+                                                    <button type="button" onClick={() => toggleUser(u)} className="ml-1 hover:text-primary-900"><X className="w-3 h-3" /></button>
+                                                </span>
                                             ))}
                                         </div>
                                     )}
 
+                                    {/* No results */}
                                     {searchTerm.length >= 2 && users.length === 0 && (
                                         <p className="text-sm text-gray-500 text-center py-2">No users found</p>
                                     )}
@@ -159,10 +181,12 @@ export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemb
                                             onChange={(e) => setSelectedRole(e.target.value)}
                                             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                         >
-                                            <option value="MEMBER">Member</option>
-                                            <option value="ADMIN">Admin</option>
+                                            <option value="DEVELOPER">Developer</option>
+                                            <option value="QA_TESTER">QA Tester</option>
+                                            <option value="DESIGNER">Designer</option>
+                                            <option value="PROJECT_MANAGER">Project Manager</option>
+                                            <option value="SCRUM_MASTER">Scrum Master</option>
                                             <option value="VIEWER">Viewer</option>
-                                            <option value="CLIENT">Client</option>
                                         </select>
                                     </div>
 
@@ -174,10 +198,10 @@ export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemb
                                             type="submit"
                                             variant="primary"
                                             isLoading={isLoading}
-                                            disabled={!selectedUser}
+                                            disabled={selectedUsers.length === 0}
                                             leftIcon={<UserPlus className="w-5 h-5" />}
                                         >
-                                            Add Member
+                                            Add {selectedUsers.length > 0 ? `${selectedUsers.length} Members` : 'Member'}
                                         </Button>
                                     </div>
                                 </form>
