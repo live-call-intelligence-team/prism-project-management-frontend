@@ -24,6 +24,7 @@ const projectSchema = z.object({
     leadId: z.string().optional(),
     projectManagerId: z.string().optional(),
     scrumMasterId: z.string().optional(),
+    clientId: z.string().optional(),
     memberIds: z.array(z.string()),
     visibility: z.enum(['PUBLIC', 'PRIVATE']),
 });
@@ -43,6 +44,7 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
     const [scrumMasters, setScrumMasters] = useState<User[]>([]);
     const [projectManagers, setProjectManagers] = useState<User[]>([]);
     const [employees, setEmployees] = useState<User[]>([]);
+    const [clients, setClients] = useState<User[]>([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
 
     const {
@@ -78,6 +80,7 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                     usesEpics: initialData.usesEpics ?? true,
                     usesSprints: initialData.usesSprints ?? false,
                     leadId: initialData.leadId,
+                    clientId: initialData.clientId || '',
                     projectManagerId: initialData.leadId, // Re-map if needed or assume separate? Initial data might not have pmId yet if not in model interface?
                     // Wait, Project interface in frontend needs update too!
                     visibility: initialData.visibility as 'PUBLIC' | 'PRIVATE',
@@ -101,14 +104,17 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
             // Fetch potential Scrum Masters and Employees
             // For now fetching all and filtering in memory or separate calls
             // Ideally backend filter: roles=['SCRUM_MASTER', 'ADMIN'] for leads etc.
-            const [smData, pmData, empData] = await Promise.all([
+
+            const [smData, pmData, empData, clientData] = await Promise.all([
                 usersApi.getAll({ role: 'SCRUM_MASTER', limit: 100 }),
                 usersApi.getAll({ role: 'PROJECT_MANAGER', limit: 100 }),
-                usersApi.getAll({ role: 'EMPLOYEE', limit: 100 }) // Assuming employees are team members
+                usersApi.getAll({ role: 'EMPLOYEE', limit: 100 }),
+                usersApi.getAll({ role: 'CLIENT', limit: 100 })
             ]);
             setScrumMasters(smData.users || []);
             setProjectManagers(pmData.users || []);
             setEmployees(empData.users || []);
+            setClients(clientData.users || []);
 
             // If we didn't find specific roles, maybe just fetch all users
             if ((!smData.users || smData.users.length === 0) && (!empData.users || empData.users.length === 0)) {
@@ -314,6 +320,24 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                                         Team Assignment
                                     </h3>
                                     <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Client Representative
+                                            </label>
+                                            <select
+                                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                                                {...register('clientId')}
+                                            >
+                                                <option value="">Select a Client...</option>
+                                                {clients.map(user => (
+                                                    <option key={user.id} value={user.id}>
+                                                        {user.firstName} {user.lastName} ({user.email})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <p className="text-xs text-gray-500 mt-1">Assigning a client allows them to view this project in their dashboard.</p>
+                                        </div>
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                 Project Manager

@@ -11,6 +11,7 @@ export interface Project {
     usesEpics: boolean;
     usesSprints: boolean;
     leadId: string;
+    clientId?: string;
     projectManagerId?: string;
     scrumMasterId?: string;
     orgId: string;
