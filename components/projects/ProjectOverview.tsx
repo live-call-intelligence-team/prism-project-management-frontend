@@ -118,7 +118,7 @@ export function ProjectOverview({ projectId }: ProjectOverviewProps) {
                         <CardTitle>Sprint Velocity</CardTitle>
                     </CardHeader>
                     <CardContent className="pl-2">
-                        <div className="h-[300px]">
+                        <div className="h-[300px] w-full">
                             {velocityData && velocityData.length > 0 ? (
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={velocityData}>

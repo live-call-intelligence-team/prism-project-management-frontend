@@ -32,8 +32,11 @@ export function CreateStoryModal({ projectId, initialEpicId, isOpen, onClose, on
     const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: {
+            title: '',
+            description: '',
             priority: 'MEDIUM',
-            epicId: initialEpicId || ''
+            epicId: initialEpicId || '',
+            storyPoints: 0
         }
     });
 
