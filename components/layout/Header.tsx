@@ -12,6 +12,7 @@ import {
     LogOut,
     ChevronDown,
     Briefcase,
+    Menu,
     CheckCircle2,
     FileText,
     Loader2,
@@ -27,9 +28,10 @@ import { cn } from '@/lib/utils';
 
 interface HeaderProps {
     sidebarCollapsed?: boolean;
+    onMobileMenuClick?: () => void;
 }
 
-export function Header({ sidebarCollapsed = false }: HeaderProps) {
+export function Header({ sidebarCollapsed = false, onMobileMenuClick }: HeaderProps) {
     const router = useRouter();
     const { user, logout } = useAuthStore();
     const [showUserMenu, setShowUserMenu] = useState(false);
@@ -154,10 +156,19 @@ export function Header({ sidebarCollapsed = false }: HeaderProps) {
 
     return (
         <header className={cn(
-            "fixed top-0 right-0 left-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-30 transition-all duration-300",
-            sidebarCollapsed ? "md:left-20" : "md:left-64"
+            "fixed top-0 right-0 left-0 h-16 bg-card dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-30 transition-all duration-300",
+            sidebarCollapsed ? "md:left-20" : "md:left-64",
+            "left-0" // Ensure full width on mobile
         )}>
-            <div className="h-full px-6 flex items-center justify-between">
+            <div className="h-full px-4 md:px-6 flex items-center justify-between">
+                {/* Mobile Menu Button - Visible mainly on mobile */}
+                <button
+                    onClick={onMobileMenuClick}
+                    className="md:hidden mr-4 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                >
+                    <Menu className="w-6 h-6" />
+                </button>
+
                 {/* Search */}
                 <div className="flex-1 max-w-2xl relative">
                     <div className="relative">
@@ -167,7 +178,7 @@ export function Header({ sidebarCollapsed = false }: HeaderProps) {
                             placeholder="Search projects, issues, or files..."
                             className={cn(
                                 'w-full pl-10 pr-10 py-2 rounded-lg',
-                                'bg-gray-50 dark:bg-gray-800',
+                                'bg-background dark:bg-gray-800',
                                 'border border-gray-200 dark:border-gray-700',
                                 'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
                                 'placeholder:text-gray-400 dark:placeholder:text-gray-500',

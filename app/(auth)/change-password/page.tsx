@@ -8,9 +8,9 @@ import { ParticleButton } from '@/components/ui/ParticleButton';
 import Input from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/lib/store/authStore';
-import { PrismLogo } from '@/components/ui/PrismLogo';
 import { MorphingBackground } from '@/components/ui/MorphingBackground';
 import { authApi } from '@/lib/api/auth';
+import { OryxLogo } from '@/components/ui/OryxLogo';
 
 export default function ChangePasswordPage() {
     const router = useRouter();
@@ -93,10 +93,8 @@ export default function ChangePasswordPage() {
                 {/* Header with Logo */}
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-6">
-                        <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center backdrop-blur-3xl border border-white/10 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-                            <div className="w-10 h-10">
-                                <PrismLogo animated />
-                            </div>
+                        <div className="w-20 h-20 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-2xl flex items-center justify-center backdrop-blur-3xl border border-white/5 shadow-[0_0_30px_rgba(0,71,171,0.1)]">
+                            <OryxLogo variant="icon" size={64} />
                         </div>
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-2">Change Password</h2>

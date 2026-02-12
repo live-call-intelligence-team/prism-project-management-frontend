@@ -76,7 +76,7 @@ const Modal: React.FC<ModalProps> = ({
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                             className={cn(
-                                'relative w-full bg-white dark:bg-gray-800 rounded-xl shadow-xl pointer-events-auto',
+                                'relative w-full bg-card dark:bg-gray-800 rounded-xl shadow-xl pointer-events-auto',
                                 'max-h-[90vh] flex flex-col',
                                 sizeStyles[size]
                             )}
@@ -103,7 +103,7 @@ const Modal: React.FC<ModalProps> = ({
                                             className={cn(
                                                 'ml-4 p-2 rounded-lg',
                                                 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
-                                                'hover:bg-gray-100 dark:hover:bg-gray-700',
+                                                'hover:bg-background dark:hover:bg-gray-700',
                                                 'transition-colors'
                                             )}
                                         >

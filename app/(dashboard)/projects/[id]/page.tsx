@@ -104,6 +104,13 @@ export default function ProjectDetailsPage() {
         try {
             setIsLoading(true);
             const data = await projectsApi.getById(params.id as string);
+            console.log('Project Details fetched:', {
+                id: data.id,
+                name: data.name,
+                usesEpics: data.usesEpics,
+                usesSprints: data.usesSprints,
+                membersCount: (data as any).members?.length
+            });
             setProject(data);
         } catch (err) {
             console.error('Failed to fetch project:', err);

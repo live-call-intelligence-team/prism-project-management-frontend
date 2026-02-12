@@ -61,7 +61,7 @@ export const KB_ARTICLES: KBArticle[] = [
         excerpt: 'Learn how to set up a new project workspace and invite members.',
         content: `
             <h2>Overview</h2>
-            <p>Projects are the core of PRISM. This guide shows you how to kick off a new initiative.</p>
+            <p>Projects are the core of ORYX. This guide shows you how to kick off a new initiative.</p>
             <h3>Creating a Project</h3>
             <ol>
                 <li>Navigate to the Projects dashboard.</li>

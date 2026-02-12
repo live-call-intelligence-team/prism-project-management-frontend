@@ -21,19 +21,23 @@ import {
     List,   // Added List icon
     CheckCircle, // Added CheckCircle icon
     BarChart,
-    LogOut, // Added LogOut icon
+    LogOut,
+    Calendar,
+    FileCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store/authStore';
 import NotificationBell from '@/components/layout/NotificationBell';
 
-import { PrismLogo } from '@/components/ui/PrismLogo';
+import { OryxLogo } from '@/components/ui/OryxLogo';
 
 interface SidebarProps {
     onCollapsedChange?: (collapsed: boolean) => void;
+    mobileOpen?: boolean;
+    onMobileClose?: () => void;
 }
 
-export function Sidebar({ onCollapsedChange }: SidebarProps = {}) {
+export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }: SidebarProps = {}) {
     const [collapsed, setCollapsed] = useState(false);
     const pathname = usePathname();
     const { user, logout } = useAuthStore();
@@ -74,6 +78,8 @@ export function Sidebar({ onCollapsedChange }: SidebarProps = {}) {
         { name: 'Board', href: '/scrum/board', icon: Kanban },
         ...(isAdmin ? [
             { name: 'Users', href: '/admin/users', icon: Users },
+            { name: 'Attendance', href: '/admin/attendance', icon: Calendar },
+            { name: 'Leaves', href: '/admin/leave-management', icon: FileCheck },
             { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText }
         ] : []),
         { name: 'Analytics', href: '/analytics', icon: BarChart3 },
@@ -89,6 +95,8 @@ export function Sidebar({ onCollapsedChange }: SidebarProps = {}) {
 
     const employeeNavItems = [
         { name: 'Dashboard', href: '/employee/dashboard', icon: LayoutDashboard },
+        { name: 'Attendance', href: '/employee/attendance', icon: Calendar },
+        { name: 'Leaves', href: '/employee/leave-management', icon: FileCheck },
         { name: 'Board', href: '/employee/board', icon: Kanban },
         { name: 'My Work', href: '/my-work', icon: CheckCircle },
         { name: 'Settings', href: '/settings', icon: Settings },
@@ -117,118 +125,129 @@ export function Sidebar({ onCollapsedChange }: SidebarProps = {}) {
     }
 
     return (
-        <motion.aside
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className={cn(
-                'fixed left-0 top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 z-40',
-                collapsed ? 'w-20' : 'w-64'
-            )}
-        >
-            {/* Logo */}
-            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
-                {!collapsed && (
-                    <Link href={getDashboardPath()} className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-                            <PrismLogo className="w-6 h-6" />
-                        </div>
-                        <span className="font-bold text-lg bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
-                            PRISM
-                        </span>
-                    </Link>
-                )}
-                {collapsed && (
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto">
-                        <PrismLogo className="w-6 h-6" />
-                    </div>
-                )}
-            </div>
-
-            {/* Navigation */}
-            <nav className="p-4 space-y-2">
-                {filteredNavItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = pathname === item.href;
-
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                'flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200',
-                                'hover:bg-gray-100 dark:hover:bg-gray-800',
-                                isActive && 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400',
-                                !isActive && 'text-gray-700 dark:text-gray-300',
-                                collapsed && 'justify-center'
-                            )}
-                        >
-                            <Icon className={cn('w-5 h-5', isActive && 'text-primary-600 dark:text-primary-400')} />
-                            {!collapsed && (
-                                <span className="font-medium">{item.name}</span>
-                            )}
-                            {isActive && !collapsed && (
-                                <motion.div
-                                    layoutId="activeNav"
-                                    className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600 dark:bg-primary-400"
-                                />
-                            )}
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* User Profile and Logout */}
-            {!collapsed && (
-                <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
-                    <div className="flex-shrink-0 w-full group block">
-                        <div className="flex items-center">
-                            <div className="h-9 w-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
-                                {user?.firstName?.[0] || 'U'}
-                            </div>
-                            <div className="ml-3 flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-gray-900 truncate">
-                                    {user?.firstName} {user?.lastName}
-                                </p>
-                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 truncate">
-                                    {user?.role}
-                                </p>
-                            </div>
-                            <NotificationBell />
-                            <button
-                                onClick={handleLogout}
-                                className="ml-2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-500"
-                            >
-                                <LogOut className="h-5 w-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <>
+            {/* Mobile Backdrop */}
+            {mobileOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    onClick={onMobileClose}
+                />
             )}
 
-            {/* Collapse button */}
-            <button
-                onClick={toggleCollapse}
+            <motion.aside
+                initial={false}
+                animate={{
+                    x: mobileOpen ? 0 : 0, // In desktop x is controlled by layout entrance, on mobile by CSS transform mostly
+                    opacity: 1
+                }}
                 className={cn(
-                    'absolute -right-3 top-20 w-6 h-6 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
-                    'flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200',
-                    'hover:scale-110'
+                    'fixed left-0 top-0 h-screen bg-card dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 z-50',
+                    // Mobile Styles
+                    'transform md:transform-none',
+                    mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0', // Hidden on mobile unless open
+                    collapsed ? 'w-20' : 'w-64'
                 )}
             >
-                {collapsed ? (
-                    <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                ) : (
-                    <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                )}
-            </button>
-
-            {/* Footer */}
-            {!collapsed && (
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-800">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                        © 2024 ProjectHub
-                    </div>
+                {/* Logo */}
+                <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
+                    {!collapsed && (
+                        <Link href={getDashboardPath()} className="flex items-center space-x-2">
+                            <OryxLogo variant="full" size={32} />
+                        </Link>
+                    )}
+                    {collapsed && (
+                        <div className="flex items-center justify-center mx-auto">
+                            <OryxLogo variant="icon" size={32} />
+                        </div>
+                    )}
                 </div>
-            )}
-        </motion.aside>
+
+                {/* Navigation */}
+                <nav className="p-4 space-y-2">
+                    {filteredNavItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.href;
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={cn(
+                                    'flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200',
+                                    'hover:bg-gray-100 dark:hover:bg-gray-800',
+                                    isActive && 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400',
+                                    !isActive && 'text-gray-700 dark:text-gray-300',
+                                    collapsed && 'justify-center'
+                                )}
+                            >
+                                <Icon className={cn('w-5 h-5', isActive && 'text-primary-600 dark:text-primary-400')} />
+                                {!collapsed && (
+                                    <span className="font-medium">{item.name}</span>
+                                )}
+                                {isActive && !collapsed && (
+                                    <motion.div
+                                        layoutId="activeNav"
+                                        className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600 dark:bg-primary-400"
+                                    />
+                                )}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* User Profile and Logout */}
+                {!collapsed && (
+                    <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+                        <div className="flex-shrink-0 w-full group block">
+                            <div className="flex items-center">
+                                <div className="h-9 w-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
+                                    {user?.firstName?.[0] || 'U'}
+                                </div>
+                                <div className="ml-3 flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-gray-900 truncate">
+                                        {user?.firstName} {user?.lastName}
+                                    </p>
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 truncate">
+                                        {user?.role}
+                                    </p>
+                                </div>
+                                <NotificationBell />
+                                <button
+                                    onClick={handleLogout}
+                                    className="ml-2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-500"
+                                >
+                                    <LogOut className="h-5 w-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Collapse button */}
+                <button
+                    onClick={toggleCollapse}
+                    className={cn(
+                        'absolute -right-3 top-20 w-6 h-6 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
+                        'flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200',
+                        'hover:scale-110'
+                    )}
+                >
+                    {collapsed ? (
+                        <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    ) : (
+                        <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    )}
+                </button>
+
+                {/* Footer */}
+                {!collapsed && (
+                    <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-800">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                            © 2026 ORYX Technologies
+                        </div>
+                    </div>
+                )}
+            </motion.aside>
+        </>
     );
 }

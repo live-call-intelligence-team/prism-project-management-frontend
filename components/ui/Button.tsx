@@ -42,10 +42,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 'focus:ring-primary-500'
             ),
             secondary: cn(
-                'bg-white dark:bg-gray-800',
+                'bg-card dark:bg-gray-800',
                 'text-gray-700 dark:text-gray-300',
                 'border border-gray-300 dark:border-gray-600',
-                'hover:bg-gray-50 dark:hover:bg-gray-700',
+                'hover:bg-background dark:hover:bg-gray-700',
                 'focus:ring-gray-500'
             ),
             danger: cn(

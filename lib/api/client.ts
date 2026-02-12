@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -37,7 +37,7 @@ apiClient.interceptors.response.use(
                 const refreshToken = localStorage.getItem('refreshToken');
                 if (refreshToken) {
                     const response = await axios.post(
-                        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/auth/refresh-token`,
+                        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1'}/auth/refresh-token`,
                         { refreshToken }
                     );
 
@@ -57,6 +57,12 @@ apiClient.interceptors.response.use(
                 window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
+        }
+
+        if (error.code === 'ERR_NETWORK') {
+            console.error('Network Error detected on:', originalRequest?.method?.toUpperCase(), originalRequest?.url);
+            console.error('Base URL:', originalRequest?.baseURL || apiClient.defaults.baseURL);
+            console.error('Ensure the backend is reachable and CORS is correctly configured.');
         }
 
         return Promise.reject(error);

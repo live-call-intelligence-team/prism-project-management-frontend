@@ -152,7 +152,7 @@ export default function ProjectsPage() {
                         Manage and track all your projects
                     </p>
                 </div>
-                {user?.role === 'ADMIN' && (
+                {user?.role?.toUpperCase() === 'ADMIN' && (
                     <button
                         onClick={openCreateModal}
                         className={cn(

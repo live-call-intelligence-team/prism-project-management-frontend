@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { PrismLogo } from './PrismLogo';
+import { OryxLogo } from './OryxLogo';
 
 interface DoorTransitionProps {
     children: React.ReactNode;
@@ -63,7 +63,20 @@ export function DoorTransition({ children, userName = 'User' }: DoorTransitionPr
                                 transition={{ duration: 1.2, ease: "backOut" }} // Pop in formation
                             >
                                 <div className="w-40 h-40">
-                                    <PrismLogo animated={false} />
+                                    <motion.div
+                                        animate={{
+                                            rotate: [0, 360],
+                                            scale: [0.8, 1, 0.8]
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "linear"
+                                        }}
+                                        className="w-24 h-24 flex items-center justify-center p-4 bg-blue-500/10 rounded-full"
+                                    >
+                                        <OryxLogo variant="icon" size={60} />
+                                    </motion.div>
                                 </div>
                             </motion.div>
 

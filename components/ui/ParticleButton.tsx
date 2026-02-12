@@ -24,7 +24,7 @@ export function ParticleButton({ children, className, isLoading, onClick, varian
             x: 'clientX' in e ? ((e as React.MouseEvent).clientX - rect.left) : rect.width / 2,
             y: 'clientY' in e ? ((e as React.MouseEvent).clientY - rect.top) : rect.height / 2,
             angle: Math.random() * 360,
-            color: ['#6366f1', '#a855f7', '#ec4899'][Math.floor(Math.random() * 3)] // Prism colors
+            color: ['#0047AB', '#6A0DAD', '#4F46E5'][Math.floor(Math.random() * 3)] // ORYX colors
         }));
 
         setParticles(prev => [...prev.slice(-20), ...newParticles]);

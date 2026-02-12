@@ -13,8 +13,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PRISM - Project Requirements & Issue Source Manager",
-  description: "Enterprise project management for agile teams",
+  title: "ORYX - Project Intelligence Platform",
+  description: "Minimalist enterprise project management for agile teams",
 };
 
 export default function RootLayout({
