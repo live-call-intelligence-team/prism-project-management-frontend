@@ -12,7 +12,13 @@ import { OryxLogo } from '@/components/ui/OryxLogo';
 import { MorphingBackground } from '@/components/ui/MorphingBackground';
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const getApiUrl = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    if (url.endsWith('/api/v1')) return url;
+    return `${url}/api/v1`;
+};
+
+const API_URL = getApiUrl();
 
 export default function LoginPage() {
     const router = useRouter();

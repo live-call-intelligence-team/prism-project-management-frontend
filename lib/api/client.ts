@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    if (url.endsWith('/api/v1')) return url;
+    return `${url}/api/v1`;
+};
+
 const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1',
+    baseURL: getBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
     },
@@ -37,7 +43,7 @@ apiClient.interceptors.response.use(
                 const refreshToken = localStorage.getItem('refreshToken');
                 if (refreshToken) {
                     const response = await axios.post(
-                        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1'}/auth/refresh-token`,
+                        `${getBaseUrl()}/auth/refresh-token`,
                         { refreshToken }
                     );
 
