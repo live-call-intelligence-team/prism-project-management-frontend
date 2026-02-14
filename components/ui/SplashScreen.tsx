@@ -2,19 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PrismLogo } from './PrismLogo';
+import { PremiumLogo } from './PremiumLogo';
 
 interface SplashScreenProps {
     onComplete?: () => void;
-    mode?: 'startup' | 'transition'; // New prop to distinguish startup vs post-login
+    mode?: 'startup' | 'transition';
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mode = 'startup' }) => {
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
-        // Duration depends on mode: startup is longer, transition is snappy but elegant
-        const duration = mode === 'startup' ? 4000 : 2500;
+        const duration = mode === 'startup' ? 4500 : 2500;
 
         const timer = setTimeout(() => {
             setIsVisible(false);
@@ -24,72 +23,79 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mode = '
         return () => clearTimeout(timer);
     }, [onComplete, mode]);
 
-    // Apple-style easing approximation
-    const elegantEase = "easeInOut";
-
     return (
         <AnimatePresence>
             {isVisible && (
                 <motion.div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black"
-                    initial={{ opacity: mode === 'startup' ? 1 : 0 }} // Transition starts transparent if overlaid
+                    className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+                    initial={{ opacity: mode === 'startup' ? 1 : 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, transition: { duration: 0.8, ease: elegantEase } }}
+                    exit={{ opacity: 0, transition: { duration: 1.0, ease: "easeInOut" } }}
+                    style={{
+                        background: "radial-gradient(circle at center, #064e3b 0%, #022c22 40%, #000000 100%)"
+                    }}
                 >
-                    <div className="relative flex flex-col items-center">
+                    {/* Ambient Glow */}
+                    <motion.div
+                        className="absolute w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px]"
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.2, 0.4, 0.2]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
 
-                        {/* Animation Container */}
+                    <div className="relative flex flex-col items-center z-10">
+                        {/* Logo Animation */}
                         <motion.div
-                            className="relative w-48 h-48 mb-8 flex items-center justify-center"
-                            initial={{ scale: mode === 'startup' ? 0.8 : 0.4, opacity: 0 }}
+                            className="mb-10"
+                            initial={{ scale: 0.8, opacity: 0, rotateY: 30 }}
                             animate={{
-                                scale: [0.8, 1, 1], // Gentle breathe
-                                opacity: [0, 1, 1]
+                                scale: 1,
+                                opacity: 1,
+                                rotateY: 0
                             }}
                             transition={{
-                                duration: mode === 'startup' ? 3 : 1.5,
-                                times: [0, 0.4, 1],
-                                ease: elegantEase as any
+                                duration: 1.5,
+                                ease: "easeOut"
                             }}
                         >
-                            {/* The Logo Pulse Effect */}
-                            {mode === 'startup' && (
-                                <motion.div
-                                    className="absolute inset-0 rounded-full bg-blue-500/10 blur-3xl"
-                                    animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
-                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                                />
-                            )}
-
-                            {/* Main Logo Component */}
-                            <PrismLogo variant="icon" size={120} />
+                            <PremiumLogo size={140} animate={true} />
                         </motion.div>
 
-                        {/* Text Reveal Animation - Elegant Fade Up */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 10, letterSpacing: "0.1em" }}
-                            animate={{ opacity: 1, y: 0, letterSpacing: "0.2em" }}
-                            transition={{
-                                delay: mode === 'startup' ? 1.0 : 0.5,
-                                duration: 1.2,
-                                ease: elegantEase
-                            }}
-                            className="text-center"
-                        >
-                            <h1 className="text-4xl font-bold tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-indigo-400 to-cyan-400">
+                        {/* Text Animation */}
+                        <div className="text-center">
+                            <motion.h1
+                                className="text-5xl font-extralight tracking-[0.3em] text-white"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.8, duration: 1.0 }}
+                            >
                                 PRISM
-                            </h1>
+                            </motion.h1>
+
+                            <motion.div
+                                className="h-[1px] w-0 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto mt-6"
+                                initial={{ width: 0 }}
+                                animate={{ width: 120 }}
+                                transition={{ delay: 1.2, duration: 1.5, ease: "easeOut" }}
+                            />
+
                             {mode === 'startup' && (
                                 <motion.p
+                                    className="text-emerald-400/60 text-xs mt-4 tracking-[0.5em] uppercase"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: 2, duration: 1 }}
-                                    className="text-gray-500 text-xs mt-3 tracking-[0.3em] uppercase font-light"
+                                    transition={{ delay: 1.8, duration: 1.0 }}
                                 >
-                                    Project Intelligence
+                                    Intelligence Suite
                                 </motion.p>
                             )}
-                        </motion.div>
+                        </div>
                     </div>
                 </motion.div>
             )}

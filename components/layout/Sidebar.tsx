@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store/authStore';
 import NotificationBell from '@/components/layout/NotificationBell';
 
-import { PrismLogo } from '@/components/ui/PrismLogo';
+import { PremiumLogo } from '@/components/ui/PremiumLogo';
 
 interface SidebarProps {
     onCollapsedChange?: (collapsed: boolean) => void;
@@ -147,12 +147,13 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                 <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
                     {!collapsed && (
                         <Link href={getDashboardPath()} className="flex items-center space-x-2" onClick={() => mobileOpen && onMobileClose?.()}>
-                            <PrismLogo variant="full" size={32} />
+                            <PremiumLogo variant="full" size={40} />
+                            <span className="font-bold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-amber-500">PRISM</span>
                         </Link>
                     )}
                     {collapsed && (
                         <div className="flex items-center justify-center mx-auto">
-                            <PrismLogo variant="icon" size={32} />
+                            <PremiumLogo variant="icon" size={32} />
                         </div>
                     )}
 

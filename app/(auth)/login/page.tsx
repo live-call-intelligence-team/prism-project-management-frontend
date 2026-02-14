@@ -8,7 +8,7 @@ import { ParticleButton } from '@/components/ui/ParticleButton';
 import Input from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/lib/store/authStore';
-import { PrismLogo } from '@/components/ui/PrismLogo';
+import { PremiumLogo } from '@/components/ui/PremiumLogo';
 import { MorphingBackground } from '@/components/ui/MorphingBackground';
 import axios from 'axios';
 
@@ -37,7 +37,7 @@ export default function LoginPage() {
         // Trigger transition after intro animation
         const timer = setTimeout(() => {
             setStage('form');
-        }, 3000); // 3 seconds matching the logo rotation + pause
+        }, 3500); // Extended slightly for the premium entrance feel
 
         return () => clearTimeout(timer);
     }, []);
@@ -80,15 +80,18 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] relative overflow-hidden text-neutral-200 font-sans selection:bg-gold-500/30">
-            {/* Background Atmosphere */}
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-black to-black opacity-80" />
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] relative overflow-hidden text-neutral-200 font-sans selection:bg-emerald-500/30">
+            {/* Background Atmosphere - Deep Emerald/Navy */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#022c22] via-[#064e3b] to-black opacity-90" />
             <MorphingBackground />
+
+            {/* Premium Gold/Emerald Glow */}
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-amber-500/5 rounded-full blur-[120px]" />
 
             <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
 
                 {/* Rotating Logo Container */}
-                {/* We use LayoutGroup to smoothly animate the layout change from Center to Top-Center/Left */}
                 <motion.div
                     layout
                     className={`flex flex-col items-center transition-all duration-1000 ease-in-out absolute ${stage === 'intro' ? 'top-1/2 -translate-y-1/2' : 'top-8 md:top-12'}`}
@@ -97,17 +100,27 @@ export default function LoginPage() {
                         layoutId="logo-container"
                         className="flex flex-col items-center"
                     >
-                        <PrismLogo
+                        <PremiumLogo
                             variant={stage === 'intro' ? 'full' : 'icon'}
-                            size={stage === 'intro' ? 80 : 40}
-                            animate={stage === 'intro'}
+                            size={stage === 'intro' ? 140 : 60}
+                            animate={true}
                         />
                     </motion.div>
 
-                    <motion.div layoutId="brand-text" className="text-center">
-                        <h1 className={`font-bold tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 ${stage === 'intro' ? 'text-4xl mt-6' : 'text-xl md:text-2xl'}`}>
+                    <motion.div layoutId="brand-text" className="text-center mt-6">
+                        <h1 className={`font-light tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-white to-amber-200 ${stage === 'intro' ? 'text-4xl' : 'text-2xl'}`}>
                             PRISM
                         </h1>
+                        {stage === 'intro' && (
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 1 }}
+                                className="text-emerald-400/60 text-xs mt-2 tracking-[0.5em] uppercase"
+                            >
+                                Intelligence Suite
+                            </motion.p>
+                        )}
                     </motion.div>
                 </motion.div>
 
@@ -118,20 +131,25 @@ export default function LoginPage() {
                             initial={{ opacity: 0, y: 40 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
-                            className="w-[90%] md:w-full max-w-md mt-24 md:mt-32 bg-white/5 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+                            className="w-[90%] md:w-full max-w-md mt-32 md:mt-40 bg-black/20 backdrop-blur-2xl border border-white/10 p-8 md:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.6)] relative overflow-hidden"
                         >
-                            <div className="mb-8 text-center">
+                            {/* Subtle border gradient */}
+                            <div className="absolute inset-0 border-2 border-transparent rounded-3xl [mask:linear-gradient(white,white)_content-box,linear-gradient(white,white)]"
+                                style={{ background: 'linear-gradient(to bottom right, rgba(16, 185, 129, 0.3), rgba(245, 158, 11, 0.1)) border-box' }}
+                            />
+
+                            <div className="mb-8 text-center relative z-10">
                                 <h2 className="text-xl text-[#E5E4E2] font-light tracking-wide">Welcome Back</h2>
-                                <p className="text-gray-500 text-sm mt-1">Sign in to your dashboard</p>
+                                <p className="text-gray-400 text-sm mt-1">Sign in to your dashboard</p>
                             </div>
 
-                            <form onSubmit={handleLogin} className="space-y-6">
+                            <form onSubmit={handleLogin} className="space-y-6 relative z-10">
                                 <Input
                                     label="Email or Username"
                                     value={loginId}
                                     onChange={(e) => setLoginId(e.target.value)}
-                                    leftIcon={<Mail className="w-5 h-5 text-[#0047AB]" />}
-                                    className="bg-black/40 border-white/10 text-white focus:border-[#0047AB]/50 placeholder:text-gray-600 transition-colors"
+                                    leftIcon={<Mail className="w-4 h-4 text-emerald-500" />}
+                                    className="bg-black/40 border-white/10 text-white focus:border-emerald-500/50 placeholder:text-gray-600 transition-colors h-12"
                                     required
                                 />
 
@@ -140,8 +158,8 @@ export default function LoginPage() {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    leftIcon={<Lock className="w-5 h-5 text-[#0047AB]" />}
-                                    className="bg-black/40 border-white/10 text-white focus:border-[#0047AB]/50 placeholder:text-gray-600 transition-colors"
+                                    leftIcon={<Lock className="w-4 h-4 text-emerald-500" />}
+                                    className="bg-black/40 border-white/10 text-white focus:border-emerald-500/50 placeholder:text-gray-600 transition-colors h-12"
                                     showPasswordToggle
                                     required
                                 />
@@ -152,20 +170,20 @@ export default function LoginPage() {
                                             type="checkbox"
                                             checked={rememberMe}
                                             onChange={(e) => setRememberMe(e.target.checked)}
-                                            className="rounded border-white/20 bg-black/40 text-[#D4AF37] focus:ring-[#D4AF37]/30"
+                                            className="rounded border-white/20 bg-black/40 text-emerald-500 focus:ring-emerald-500/30"
                                         />
-                                        <span className="ml-2 text-gray-400 group-hover:text-[#D4AF37] transition-colors">Remember me</span>
+                                        <span className="ml-2 text-gray-400 group-hover:text-emerald-400 transition-colors">Remember me</span>
                                     </label>
-                                    <a href="#" className="text-gray-400 hover:text-[#D4AF37] transition-colors">Forgot password?</a>
+                                    <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors">Forgot password?</a>
                                 </div>
 
                                 <ParticleButton
                                     type="submit"
                                     variant="primary"
-                                    className="w-full bg-gradient-to-r from-[#0047AB] to-[#6A0DAD] hover:from-[#0056D2] hover:to-[#7E22CE] text-white font-bold border-none shadow-[0_0_20px_rgba(0,71,171,0.2)]"
+                                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-medium tracking-wide border-none shadow-[0_0_20px_rgba(16,185,129,0.2)] h-12 rounded-xl"
                                     isLoading={isLoading}
                                 >
-                                    Login
+                                    Sign In
                                 </ParticleButton>
                             </form>
                         </motion.div>
