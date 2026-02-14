@@ -32,8 +32,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
                 const response = await authApi.getCurrentUser();
 
                 if (response.data && response.data.user) {
+                    const user = response.data.user;
                     useAuthStore.setState({
-                        user: response.data.user,
+                        user: { ...user, role: user.role.toUpperCase() },
                         token,
                         isAuthenticated: true,
                     });

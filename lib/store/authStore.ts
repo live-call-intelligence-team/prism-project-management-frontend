@@ -41,7 +41,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             localStorage.setItem('refreshToken', refreshToken);
 
             set({
-                user,
+                user: user ? { ...user, role: user.role.toUpperCase() } : null,
                 token: accessToken,
                 isAuthenticated: true,
                 isLoading: false,
@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             localStorage.setItem('refreshToken', refreshToken);
 
             set({
-                user,
+                user: user ? { ...user, role: user.role.toUpperCase() } : null,
                 token: accessToken,
                 isAuthenticated: true,
                 isLoading: false,
@@ -91,7 +91,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         });
     },
 
-    setUser: (user) => set({ user }),
+    setUser: (user) => {
+        const normalizedUser = user ? { ...user, role: user.role.toUpperCase() } : null;
+        set({ user: normalizedUser });
+    },
 
     clearError: () => set({ error: null }),
 }));
