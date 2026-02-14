@@ -54,7 +54,7 @@ export function CreateSubtaskModal({ parentStoryId, parentStoryTitle, isOpen, on
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg p-6 shadow-xl">
+            <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg p-4 md:p-6 shadow-xl">
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h2 className="text-xl font-bold">Create Sub-task</h2>

@@ -184,7 +184,7 @@ export function CreateFeatureModal({ isOpen, onClose, onSubmit, projectId }: Cre
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                             Priority
@@ -211,7 +211,7 @@ export function CreateFeatureModal({ isOpen, onClose, onSubmit, projectId }: Cre
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                             Start Date
@@ -240,7 +240,7 @@ export function CreateFeatureModal({ isOpen, onClose, onSubmit, projectId }: Cre
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                             Assigned To

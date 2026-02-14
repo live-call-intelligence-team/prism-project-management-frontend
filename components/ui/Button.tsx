@@ -8,6 +8,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     isLoading?: boolean;
     leftIcon?: React.ReactNode;
     rightIcon?: React.ReactNode;
+    fullWidth?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -21,6 +22,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             rightIcon,
             children,
             disabled,
+            fullWidth = false,
             ...props
         },
         ref
@@ -86,7 +88,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         return (
             <button
                 ref={ref}
-                className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}
+                className={cn(
+                    baseStyles,
+                    variantStyles[variant],
+                    sizeStyles[size],
+                    fullWidth && 'w-full',
+                    className
+                )}
                 disabled={disabled || isLoading}
                 {...props}
             >

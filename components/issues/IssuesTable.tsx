@@ -105,7 +105,8 @@ export function IssuesTable({ issues, onEdit, onDelete, selectedIssues, onSelect
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                     <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                         <tr>
@@ -261,6 +262,108 @@ export function IssuesTable({ issues, onEdit, onDelete, selectedIssues, onSelect
                         })}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+                {issues.map((issue, index) => {
+                    const TypeIcon = getTypeIcon(issue.type);
+                    const PriorityIcon = getPriorityIcon(issue.priority);
+                    const isSelected = selectedIssues.includes(issue.id);
+
+                    return (
+                        <div
+                            key={issue.id}
+                            className={cn(
+                                "p-4 space-y-3",
+                                isSelected && "bg-primary-50 dark:bg-primary-900/10"
+                            )}
+                        >
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={(e) => handleSelectOne(issue.id, e.target.checked)}
+                                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 mt-1"
+                                    />
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-xs font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 px-1.5 py-0.5 rounded">
+                                                {issue.key}
+                                            </span>
+                                            <div className={cn('inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium', getTypeColor(issue.type))}>
+                                                <TypeIcon className="w-3 h-3 mr-1" />
+                                                {issue.type}
+                                            </div>
+                                        </div>
+                                        <h3 className="font-medium text-gray-900 dark:text-white text-sm line-clamp-2">
+                                            {issue.title}
+                                        </h3>
+                                    </div>
+                                </div>
+                                <Menu as="div" className="relative inline-block text-left">
+                                    <Menu.Button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                        <MoreVertical className="w-5 h-5 text-gray-400" />
+                                    </Menu.Button>
+                                    <Transition
+                                        as={Fragment}
+                                        enter="transition ease-out duration-100"
+                                        enterFrom="transform opacity-0 scale-95"
+                                        enterTo="transform opacity-100 scale-100"
+                                        leave="transition ease-in duration-75"
+                                        leaveFrom="transform opacity-100 scale-100"
+                                        leaveTo="transform opacity-0 scale-95"
+                                    >
+                                        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 z-50 focus:outline-none">
+                                            <div className="px-1 py-1">
+                                                <Menu.Item>
+                                                    {({ active }: { active: boolean }) => (
+                                                        <button onClick={() => onEdit(issue)} className={cn(active ? 'bg-primary-500 text-white' : 'text-gray-900 dark:text-white', 'group flex w-full items-center rounded-md px-2 py-2 text-sm')}>
+                                                            <Edit className="mr-2 h-4 w-4" /> Edit
+                                                        </button>
+                                                    )}
+                                                </Menu.Item>
+                                                <Menu.Item>
+                                                    {({ active }: { active: boolean }) => (
+                                                        <button onClick={() => onDelete(issue)} className={cn(active ? 'bg-red-500 text-white' : 'text-red-600', 'group flex w-full items-center rounded-md px-2 py-2 text-sm')}>
+                                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                        </button>
+                                                    )}
+                                                </Menu.Item>
+                                            </div>
+                                        </Menu.Items>
+                                    </Transition>
+                                </Menu>
+                            </div>
+
+                            <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center" title="Priority">
+                                        <PriorityIcon className={cn('w-4 h-4 mr-1', getPriorityColor(issue.priority))} />
+                                        <span className={cn('text-xs font-medium', getPriorityColor(issue.priority))}>
+                                            {issue.priority}
+                                        </span>
+                                    </div>
+                                    <span className={cn('px-2 py-0.5 rounded text-[10px] font-medium', getStatusColor(issue.status))}>
+                                        {issue.status.replace('_', ' ')}
+                                    </span>
+                                </div>
+                                <div>
+                                    {issue.assignee ? (
+                                        <div className="flex items-center" title={`Assigned to ${issue.assignee.firstName}`}>
+                                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary-500 to-accent-purple flex items-center justify-center text-white text-[10px] font-medium">
+                                                {getInitials(issue.assignee.firstName + ' ' + issue.assignee.lastName)}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <span className="text-xs text-gray-400">Unassigned</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

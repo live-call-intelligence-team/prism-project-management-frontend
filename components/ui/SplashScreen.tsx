@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OryxLogo } from './OryxLogo';
+import { PrismLogo } from './PrismLogo';
 
 interface SplashScreenProps {
     onComplete?: () => void;
@@ -38,7 +38,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mode = '
                 >
                     <div className="relative flex flex-col items-center">
 
-                        {/* Apple-style Logo Animation Container */}
+                        {/* Animation Container */}
                         <motion.div
                             className="relative w-48 h-48 mb-8 flex items-center justify-center"
                             initial={{ scale: mode === 'startup' ? 0.8 : 0.4, opacity: 0 }}
@@ -62,7 +62,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mode = '
                             )}
 
                             {/* Main Logo Component */}
-                            <OryxLogo variant="icon" size={120} />
+                            <PrismLogo variant="icon" size={120} />
                         </motion.div>
 
                         {/* Text Reveal Animation - Elegant Fade Up */}
@@ -76,8 +76,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mode = '
                             }}
                             className="text-center"
                         >
-                            <h1 className="text-4xl font-extralight tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-br from-white via-blue-200 to-gray-500">
-                                ORYX
+                            <h1 className="text-4xl font-bold tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-indigo-400 to-cyan-400">
+                                PRISM
                             </h1>
                             {mode === 'startup' && (
                                 <motion.p

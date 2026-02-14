@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/lib/store/authStore';
 import { MorphingBackground } from '@/components/ui/MorphingBackground';
 import { authApi } from '@/lib/api/auth';
-import { OryxLogo } from '@/components/ui/OryxLogo';
+import { PrismLogo } from '@/components/ui/PrismLogo';
 
 export default function ChangePasswordPage() {
     const router = useRouter();
@@ -94,7 +94,7 @@ export default function ChangePasswordPage() {
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-6">
                         <div className="w-20 h-20 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-2xl flex items-center justify-center backdrop-blur-3xl border border-white/5 shadow-[0_0_30px_rgba(0,71,171,0.1)]">
-                            <OryxLogo variant="icon" size={64} />
+                            <PrismLogo variant="icon" size={64} />
                         </div>
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-2">Change Password</h2>

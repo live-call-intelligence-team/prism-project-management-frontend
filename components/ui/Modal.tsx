@@ -27,12 +27,12 @@ const Modal: React.FC<ModalProps> = ({
     footer,
 }) => {
     const sizeStyles = {
-        sm: 'max-w-md',
-        md: 'max-w-lg',
-        lg: 'max-w-2xl',
-        xl: 'max-w-4xl',
-        '2xl': 'max-w-6xl',
-        full: 'max-w-7xl',
+        sm: 'md:max-w-md',
+        md: 'md:max-w-lg',
+        lg: 'md:max-w-2xl',
+        xl: 'md:max-w-4xl',
+        '2xl': 'md:max-w-6xl',
+        full: 'md:max-w-7xl',
     };
 
     // Close on Escape key
@@ -78,6 +78,7 @@ const Modal: React.FC<ModalProps> = ({
                             className={cn(
                                 'relative w-full bg-card dark:bg-gray-800 rounded-xl shadow-xl pointer-events-auto',
                                 'max-h-[90vh] flex flex-col',
+                                'w-[95vw] md:w-auto', // Mobile width override
                                 sizeStyles[size]
                             )}
                             onClick={(e) => e.stopPropagation()}

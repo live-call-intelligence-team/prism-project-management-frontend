@@ -254,7 +254,8 @@ export default function AdminLeavePage() {
                                     // All View (Table)
                                     <Card>
                                         <CardContent className="p-0">
-                                            <div className="overflow-x-auto">
+                                            {/* Desktop Table */}
+                                            <div className="hidden md:block overflow-x-auto">
                                                 <table className="w-full">
                                                     <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                                                         <tr>
@@ -302,6 +303,44 @@ export default function AdminLeavePage() {
                                                         ))}
                                                     </tbody>
                                                 </table>
+                                            </div>
+
+                                            {/* Mobile Card List */}
+                                            <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+                                                {filteredLeaves.map((record) => (
+                                                    <div key={record.id} className="p-4 space-y-3">
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <div className="font-medium text-gray-900 dark:text-white">
+                                                                    {record.user?.firstName} {record.user?.lastName}
+                                                                </div>
+                                                                <div className="text-xs text-gray-500">{record.user?.employeeDetails?.department || 'Employee'}</div>
+                                                            </div>
+                                                            <span className={cn(
+                                                                'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium gap-1',
+                                                                getStatusColor(record.status)
+                                                            )}>
+                                                                {record.status}
+                                                            </span>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                                            <div>
+                                                                <span className="text-xs text-gray-500 block">Type</span>
+                                                                <span className="font-medium text-gray-900 dark:text-white">{record.leaveType}</span>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-xs text-gray-500 block">Duration</span>
+                                                                <span className="font-medium text-gray-900 dark:text-white">{record.daysCount} Days</span>
+                                                            </div>
+                                                            <div className="col-span-2">
+                                                                <span className="text-xs text-gray-500 block">Dates</span>
+                                                                <span className="text-gray-700 dark:text-gray-300">
+                                                                    {format(parseISO(record.startDate), 'MMM dd')} - {format(parseISO(record.endDate), 'MMM dd, yyyy')}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </CardContent>
                                     </Card>

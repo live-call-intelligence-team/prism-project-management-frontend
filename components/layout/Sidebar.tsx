@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store/authStore';
 import NotificationBell from '@/components/layout/NotificationBell';
 
-import { OryxLogo } from '@/components/ui/OryxLogo';
+import { PrismLogo } from '@/components/ui/PrismLogo';
 
 interface SidebarProps {
     onCollapsedChange?: (collapsed: boolean) => void;
@@ -147,12 +147,12 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                 <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
                     {!collapsed && (
                         <Link href={getDashboardPath()} className="flex items-center space-x-2" onClick={() => mobileOpen && onMobileClose?.()}>
-                            <OryxLogo variant="full" size={32} />
+                            <PrismLogo variant="full" size={32} />
                         </Link>
                     )}
                     {collapsed && (
                         <div className="flex items-center justify-center mx-auto">
-                            <OryxLogo variant="icon" size={32} />
+                            <PrismLogo variant="icon" size={32} />
                         </div>
                     )}
 
@@ -227,7 +227,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                             </div>
                         </div>
                         <div className="mt-2 text-[10px] text-gray-400 text-center">
-                            © 2026 ORYX v1.0
+                            © 2026 PRISM v2.0
                         </div>
                     </div>
                 )}

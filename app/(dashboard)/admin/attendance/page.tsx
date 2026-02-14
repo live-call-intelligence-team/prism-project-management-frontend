@@ -261,7 +261,8 @@ export default function AdminAttendancePage() {
                                     // All View (Table)
                                     <Card>
                                         <CardContent className="p-0">
-                                            <div className="overflow-x-auto">
+                                            {/* Desktop Table */}
+                                            <div className="hidden md:block overflow-x-auto">
                                                 <table className="w-full">
                                                     <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                                                         <tr>
@@ -311,6 +312,44 @@ export default function AdminAttendancePage() {
                                                         ))}
                                                     </tbody>
                                                 </table>
+                                            </div>
+
+                                            {/* Mobile Card List */}
+                                            <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+                                                {filteredRecords.map((record) => (
+                                                    <div key={record.id} className="p-4 space-y-3">
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <div className="font-medium text-gray-900 dark:text-white">
+                                                                    {record.user?.firstName} {record.user?.lastName}
+                                                                </div>
+                                                                <div className="text-xs text-gray-500">{format(new Date(record.date), 'MMM dd, yyyy')}</div>
+                                                            </div>
+                                                            <span className={cn(
+                                                                'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium gap-1',
+                                                                getStatusColor(record.status, record.approvalStatus)
+                                                            )}>
+                                                                {record.approvalStatus === 'Pending' ? 'Pending' : (
+                                                                    record.approvalStatus === 'Rejected' ? 'Rejected' : record.status
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        <div className="grid grid-cols-3 gap-2 text-xs text-gray-600 dark:text-gray-400">
+                                                            <div>
+                                                                <span className="block text-gray-500">In</span>
+                                                                <span className="font-medium">{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '-'}</span>
+                                                            </div>
+                                                            <div>
+                                                                <span className="block text-gray-500">Out</span>
+                                                                <span className="font-medium">{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '-'}</span>
+                                                            </div>
+                                                            <div>
+                                                                <span className="block text-gray-500">Hrs</span>
+                                                                <span className="font-medium">{record.totalHours || '-'}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </CardContent>
                                     </Card>

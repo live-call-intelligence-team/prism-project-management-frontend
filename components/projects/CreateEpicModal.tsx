@@ -183,7 +183,7 @@ export function CreateEpicModal({ isOpen, onClose, onSubmit, initialData }: Crea
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input
                                         label="Epic Key (Optional)"
                                         placeholder="e.g., PROJ-EP-1"
@@ -211,7 +211,7 @@ export function CreateEpicModal({ isOpen, onClose, onSubmit, initialData }: Crea
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                             Priority
@@ -254,7 +254,7 @@ export function CreateEpicModal({ isOpen, onClose, onSubmit, initialData }: Crea
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                             Business Value

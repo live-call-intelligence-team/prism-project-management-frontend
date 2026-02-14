@@ -53,11 +53,11 @@ export function IssueFilters({
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                <div className="flex flex-col md:flex-row flex-wrap gap-3 w-full md:w-auto">
                     <select
                         value={currentFilters.type}
                         onChange={(e) => onFilterChange('type', e.target.value)}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                        className="w-full md:w-auto px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
                     >
                         <option value="all">All Types</option>
                         <option value="BUG">Bug</option>
@@ -69,7 +69,7 @@ export function IssueFilters({
                     <select
                         value={currentFilters.priority}
                         onChange={(e) => onFilterChange('priority', e.target.value)}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                        className="w-full md:w-auto px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
                     >
                         <option value="all">All Priorities</option>
                         <option value="CRITICAL">Critical</option>
@@ -81,7 +81,7 @@ export function IssueFilters({
                     <select
                         value={currentFilters.status}
                         onChange={(e) => onFilterChange('status', e.target.value)}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                        className="w-full md:w-auto px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
                     >
                         <option value="all">All Statuses</option>
                         <option value="TODO">To Do</option>
@@ -96,6 +96,7 @@ export function IssueFilters({
                             size="sm"
                             onClick={onClearFilters}
                             leftIcon={<X className="w-4 h-4" />}
+                            className="w-full md:w-auto"
                         >
                             Clear
                         </Button>

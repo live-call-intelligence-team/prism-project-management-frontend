@@ -122,7 +122,7 @@ export default function CreateUserModal({ isOpen, onClose, onUserCreated }: Crea
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">Basic Information</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
                             label="First Name"
                             name="firstName"
@@ -194,7 +194,7 @@ export default function CreateUserModal({ isOpen, onClose, onUserCreated }: Crea
                     <div className="space-y-4 border-t pt-4 border-gray-200 dark:border-gray-700">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white">Employee Details</h3>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Department *</label>
                                 <select name="department" value={employeeDetails.department} onChange={handleEmployeeChange}
@@ -239,7 +239,7 @@ export default function CreateUserModal({ isOpen, onClose, onUserCreated }: Crea
                         </div>
 
                         <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-2">Leave Balances (Per Year)</h4>
-                        <div className="grid grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <Input label="Annual" name="annualLeaveBalance" type="number" value={String(employeeDetails.annualLeaveBalance)} onChange={handleEmployeeChange} />
                             <Input label="Sick" name="sickLeaveBalance" type="number" value={String(employeeDetails.sickLeaveBalance)} onChange={handleEmployeeChange} />
                             <Input label="Casual" name="casualLeaveBalance" type="number" value={String(employeeDetails.casualLeaveBalance)} onChange={handleEmployeeChange} />

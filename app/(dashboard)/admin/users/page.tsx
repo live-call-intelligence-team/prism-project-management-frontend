@@ -105,12 +105,12 @@ export default function UserManagementPage() {
         <Container size="2xl">
             <div className="space-y-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
                             User Management
                         </h1>
-                        <p className="text-lg text-gray-600 dark:text-gray-400">
+                        <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
                             Manage users and permissions
                         </p>
                     </div>
@@ -118,6 +118,7 @@ export default function UserManagementPage() {
                         variant="primary"
                         leftIcon={<UserPlus className="w-5 h-5" />}
                         onClick={() => setIsCreateModalOpen(true)}
+                        className="w-full md:w-auto"
                     >
                         Add User
                     </Button>
@@ -179,7 +180,7 @@ export default function UserManagementPage() {
                 {/* User Table */}
                 <Card>
                     <CardContent className="p-0">
-                        <div className="overflow-x-auto">
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                                     <tr>
@@ -304,6 +305,87 @@ export default function UserManagementPage() {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+                            {isLoading ? (
+                                <div className="p-4 text-center text-gray-500">Loading users...</div>
+                            ) : users.length === 0 ? (
+                                <div className="p-4 text-center text-gray-500">No users found</div>
+                            ) : (
+                                users.map((user) => (
+                                    <div key={user.id} className="p-4 space-y-4">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedUsers.has(user.id)}
+                                                    onChange={() => toggleUserSelection(user.id)}
+                                                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-1"
+                                                />
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                                                        <span className="text-sm font-semibold text-primary-700 dark:text-primary-300">
+                                                            {getInitials(`${user.firstName} ${user.lastName} `)}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                            {user.firstName} {user.lastName}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                            {user.email}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    className="p-2 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                                                    onClick={() => handleResetPassword(user)}
+                                                >
+                                                    <Key className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                                                    onClick={() => handleEditUser(user)}
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                                                    onClick={() => handleDeleteUser(user.id)}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-sm pl-7">
+                                            <div className="flex items-center gap-2">
+                                                <span className={cn(
+                                                    'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
+                                                    getRoleColor(user.role as UserRole)
+                                                )}>
+                                                    {getRoleDisplayName(user.role as UserRole)}
+                                                </span>
+                                                <span className={cn(
+                                                    'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
+                                                    user.isActive
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+                                                )}>
+                                                    {user.isActive ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </div>
+                                            <span className="text-gray-500 dark:text-gray-400 text-xs">
+                                                {formatRelativeTime(user.lastLogin || user.createdAt)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
 
                         {/* Pagination - Simplified for now */}

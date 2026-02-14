@@ -8,7 +8,7 @@ import { ParticleButton } from '@/components/ui/ParticleButton';
 import Input from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/lib/store/authStore';
-import { OryxLogo } from '@/components/ui/OryxLogo';
+import { PrismLogo } from '@/components/ui/PrismLogo';
 import { MorphingBackground } from '@/components/ui/MorphingBackground';
 import axios from 'axios';
 
@@ -97,7 +97,7 @@ export default function LoginPage() {
                         layoutId="logo-container"
                         className="flex flex-col items-center"
                     >
-                        <OryxLogo
+                        <PrismLogo
                             variant={stage === 'intro' ? 'full' : 'icon'}
                             size={stage === 'intro' ? 80 : 40}
                             animate={stage === 'intro'}
@@ -105,8 +105,8 @@ export default function LoginPage() {
                     </motion.div>
 
                     <motion.div layoutId="brand-text" className="text-center">
-                        <h1 className={`font-extralight tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-gray-500 ${stage === 'intro' ? 'text-4xl mt-6' : 'text-xl md:text-2xl'}`}>
-                            ORYX
+                        <h1 className={`font-bold tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 ${stage === 'intro' ? 'text-4xl mt-6' : 'text-xl md:text-2xl'}`}>
+                            PRISM
                         </h1>
                     </motion.div>
                 </motion.div>

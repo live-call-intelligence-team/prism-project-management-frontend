@@ -234,7 +234,7 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                                         <Calendar className="w-4 h-4 text-primary-500" />
                                         Timeline
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <Input
                                             type="date"
                                             label="Start Date"
@@ -254,7 +254,7 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                                         <Briefcase className="w-4 h-4 text-primary-500" />
                                         Project Type
                                     </h3>
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         {(['SCRUM', 'KANBAN', 'WATERFALL'] as const).map((type) => (
                                             <label
                                                 key={type}
@@ -384,7 +384,7 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                                         <Eye className="w-4 h-4 text-primary-500" />
                                         Visibility
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <label className={cn(
                                             "cursor-pointer rounded-lg border p-3 flex items-center gap-3 transition-all",
                                             watch('visibility') === 'PUBLIC'

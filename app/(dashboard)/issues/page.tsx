@@ -144,24 +144,25 @@ export default function IssuesPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         Issues
-                        {isLoading && <Loader2 className="w-6 h-6 animate-spin text-primary-500" />}
+                        {isLoading && <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin text-primary-500" />}
                     </h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm md:text-base">
                         Track and manage all project issues
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3 w-full md:w-auto">
                     {selectedIssues.length > 0 && (
-                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-5">
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                                {selectedIssues.length} selected
+                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-5 mr-auto md:mr-0">
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                                {selectedIssues.length}
+                                <span className="hidden sm:inline"> selected</span>
                             </span>
                             <Button variant="danger" size="sm" onClick={handleBulkDelete}>
-                                Delete Selected
+                                Delete
                             </Button>
                         </div>
                     )}
@@ -169,6 +170,7 @@ export default function IssuesPage() {
                         variant="primary"
                         leftIcon={<Plus className="w-5 h-5" />}
                         onClick={openCreateModal}
+                        className="flex-1 md:flex-none"
                     >
                         Create Issue
                     </Button>
