@@ -15,11 +15,13 @@ interface EditUserModalProps {
 
 export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUserModalProps) {
     const [formData, setFormData] = useState<{
+        email: string;
         firstName: string;
         lastName: string;
         role: UserRole;
         isActive: boolean;
     }>({
+        email: '',
         firstName: '',
         lastName: '',
         role: 'EMPLOYEE',
@@ -30,6 +32,7 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
     useEffect(() => {
         if (user) {
             setFormData({
+                email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role,
@@ -66,6 +69,14 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
             size="md"
         >
             <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                    label="Email Address"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    leftIcon={<UserIcon className="w-4 h-4" />} // Reusing UserIcon or Mail if available, UserIcon is imported
+                />
                 <div className="grid grid-cols-2 gap-4">
                     <Input
                         label="First Name"
