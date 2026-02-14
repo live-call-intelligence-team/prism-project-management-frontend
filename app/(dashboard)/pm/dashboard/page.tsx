@@ -74,16 +74,16 @@ export default function ProjectManagerDashboard() {
         <Container size="full">
             <div className="space-y-8">
                 {/* Welcome Section */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 text-white shadow-lg">
-                    <h1 className="text-3xl font-bold mb-2">Hello, {user?.firstName}! 👋</h1>
-                    <p className="text-blue-100 opacity-90">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 md:p-8 text-white shadow-lg transition-all">
+                    <h1 className="text-2xl md:text-3xl font-bold mb-2">Hello, {user?.firstName}! 👋</h1>
+                    <p className="text-blue-100 opacity-90 text-sm md:text-base">
                         You are managing <span className="font-bold text-white">{stats?.activeProjects} active projects</span>.
                         Keep up the great work!
                     </p>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     <StatsCard
                         title="Active Projects"
                         value={stats?.activeProjects || 0}

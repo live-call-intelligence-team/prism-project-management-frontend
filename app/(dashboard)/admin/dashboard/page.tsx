@@ -154,7 +154,7 @@ export default function AdminDashboardPage() {
                 )}
 
                 {/* Projects and Users Overview */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
                     {/* Recent Projects */}
                     <Card>
                         <CardHeader>

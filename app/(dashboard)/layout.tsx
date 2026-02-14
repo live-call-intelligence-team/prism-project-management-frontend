@@ -63,7 +63,7 @@ export default function DashboardLayout({
                             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} // Slight delay after sidebar
                             className="flex-1 pt-16"
                         >
-                            <div className="p-6">
+                            <div className="p-4 md:p-6 transition-all duration-300">
                                 {children}
                             </div>
                         </motion.main>

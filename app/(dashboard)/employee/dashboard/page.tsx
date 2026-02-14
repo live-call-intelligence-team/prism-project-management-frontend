@@ -53,16 +53,16 @@ export default function EmployeeDashboard() {
         <Container size="full">
             <div className="space-y-8">
                 {/* Welcome Section */}
-                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white shadow-lg">
-                    <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.firstName}!</h1>
-                    <p className="text-indigo-100 opacity-90">
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 md:p-8 text-white shadow-lg transition-all">
+                    <h1 className="text-2xl md:text-3xl font-bold mb-2">Welcome back, {user?.firstName}!</h1>
+                    <p className="text-indigo-100 opacity-90 text-sm md:text-base">
                         You have <span className="font-bold text-white">{stats?.activeIssues} active tasks</span> waiting for you.
                         Let's have a productive day!
                     </p>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     <StatsCard
                         title="Active Tasks"
                         value={stats?.activeIssues || 0}
@@ -90,7 +90,7 @@ export default function EmployeeDashboard() {
                 </div>
 
                 {/* My Tasks - Simple List */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                     <div className="lg:col-span-2">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">My Current Tasks</h2>
