@@ -26,12 +26,14 @@ export default function SettingsPage() {
     // Profile Form State
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (user) {
             setFirstName(user.firstName || '');
             setLastName(user.lastName || '');
+            setEmail(user.email || '');
         }
     }, [user]);
 
@@ -57,12 +59,13 @@ export default function SettingsPage() {
         if (!user) return;
         setIsSaving(true);
         try {
-            const updatedUser = await usersApi.update(user.id, { firstName, lastName });
+            const updatedUser = await usersApi.update(user.id, { firstName, lastName, email });
             setUser(updatedUser as any); // Update local store
             toast.success('Profile updated successfully');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to update profile', error);
-            toast.error('Failed to update profile');
+            const message = error.response?.data?.error || 'Failed to update profile';
+            toast.error(message);
         } finally {
             setIsSaving(false);
         }
@@ -165,11 +168,10 @@ export default function SettingsPage() {
                                             </label>
                                             <input
                                                 type="email"
-                                                defaultValue={user?.email}
-                                                disabled
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-500 cursor-not-allowed"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500"
                                             />
-                                            <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
                                         </div>
 
                                         <div className="pt-4">
