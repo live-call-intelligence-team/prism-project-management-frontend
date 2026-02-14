@@ -4,7 +4,7 @@ import { usersApi, User, UserRole } from '@/lib/api/endpoints/users';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { User as UserIcon, Briefcase, Activity } from 'lucide-react';
+import { User as UserIcon, Briefcase, Activity, Mail } from 'lucide-react';
 
 interface EditUserModalProps {
     isOpen: boolean;
@@ -75,7 +75,7 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    leftIcon={<UserIcon className="w-4 h-4" />} // Reusing UserIcon or Mail if available, UserIcon is imported
+                    leftIcon={<Mail className="w-4 h-4" />}
                 />
                 <div className="grid grid-cols-2 gap-4">
                     <Input
