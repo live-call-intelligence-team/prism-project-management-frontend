@@ -160,25 +160,28 @@ export function Header({ sidebarCollapsed = false, onMobileMenuClick }: HeaderPr
             sidebarCollapsed ? "md:left-20" : "md:left-64",
             "left-0" // Ensure full width on mobile
         )}>
-            <div className="h-full px-4 md:px-6 flex items-center justify-between">
+            <div className="h-full px-4 flex items-center justify-between">
                 {/* Mobile Menu Button - Visible mainly on mobile */}
                 <button
                     onClick={onMobileMenuClick}
-                    className="md:hidden mr-4 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                    className="md:hidden mr-2 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex-shrink-0"
                 >
                     <Menu className="w-6 h-6" />
                 </button>
 
                 {/* Search */}
-                <div className="flex-1 max-w-2xl relative">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className={cn(
+                    "flex-1 relative transition-all duration-300",
+                    isSearching ? "w-full absolute inset-x-0 top-0 h-full bg-card dark:bg-gray-900 z-50 px-4 flex items-center" : "max-w-2xl"
+                )}>
+                    <div className="relative w-full">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Search..."
                             className={cn(
-                                'w-full pl-10 pr-10 py-2 rounded-lg',
-                                'bg-background dark:bg-gray-800',
+                                'w-full pl-9 pr-8 py-2 rounded-lg',
+                                'bg-gray-50 dark:bg-gray-800', // Use gray-50 for better contrast
                                 'border border-gray-200 dark:border-gray-700',
                                 'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
                                 'placeholder:text-gray-400 dark:placeholder:text-gray-500',
@@ -187,15 +190,22 @@ export function Header({ sidebarCollapsed = false, onMobileMenuClick }: HeaderPr
                             )}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
-                            onBlur={handleSearchBlur}
+                            onFocus={() => {
+                                // On mobile, maybe expand?
+                                if (window.innerWidth < 768) setIsSearching(true)
+                            }}
+                            onBlur={() => {
+                                handleSearchBlur();
+                                setTimeout(() => setIsSearching(false), 200);
+                            }}
                         />
-                        {isSearching ? (
-                            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
-                        ) : searchQuery && (
+                        {(searchQuery || isSearching) && (
                             <button
-                                onClick={() => setSearchQuery('')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                onClick={() => {
+                                    setSearchQuery('');
+                                    setIsSearching(false);
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
                             >
                                 <X className="w-4 h-4" />
                             </button>

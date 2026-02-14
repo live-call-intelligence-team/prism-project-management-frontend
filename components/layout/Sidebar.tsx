@@ -126,13 +126,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
 
     return (
         <>
-            {/* Mobile Backdrop */}
-            {mobileOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
-                    onClick={onMobileClose}
-                />
-            )}
+            {/* Mobile Backdrop moved to layout */}
 
             <motion.aside
                 initial={false}
@@ -145,7 +139,8 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                     // Mobile Styles
                     'transform md:transform-none',
                     mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0', // Hidden on mobile unless open
-                    collapsed ? 'w-20' : 'w-64'
+                    collapsed ? 'w-20' : 'w-64',
+                    'w-[85vw] max-w-[300px] md:w-auto' // Dynamic width for mobile
                 )}
             >
                 {/* Logo */}

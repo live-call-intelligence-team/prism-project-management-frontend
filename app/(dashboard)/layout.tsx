@@ -26,14 +26,21 @@ export default function DashboardLayout({
                 userName={user?.firstName || 'User'}
                 onReveal={() => setIsRevealed(true)}
             >
-                <div className="min-h-screen bg-background dark:bg-gray-950 flex">
+                <div className="min-h-screen bg-background dark:bg-gray-950 flex relative">
+                    {/* Mobile Backdrop */}
+                    {mobileMenuOpen && (
+                        <div
+                            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                            onClick={() => setMobileMenuOpen(false)}
+                        />
+                    )}
 
                     {/* Sidebar with slide-in animation */}
                     <motion.div
                         initial={{ x: '-100%' }}
                         animate={isRevealed ? { x: 0 } : { x: '-100%' }}
                         transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }} // Custom cubic-bezier
-                        className="fixed inset-y-0 left-0 z-30 flex-shrink-0"
+                        className="fixed inset-y-0 left-0 z-50 flex-shrink-0" // Increased z-index to 50
                     >
                         <Sidebar
                             onCollapsedChange={setSidebarCollapsed}
