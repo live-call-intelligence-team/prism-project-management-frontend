@@ -77,7 +77,7 @@ export default function ProjectDetailsPage() {
     const router = useRouter();
     const { success, error } = useToast();
     const user = useAuthStore(state => state.user);
-    const role = user?.role || 'EMPLOYEE';
+    const role = (user?.role || 'EMPLOYEE').toUpperCase();
     const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
