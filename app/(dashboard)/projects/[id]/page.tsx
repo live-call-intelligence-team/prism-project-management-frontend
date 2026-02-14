@@ -258,31 +258,31 @@ export default function ProjectDetailsPage() {
         <div className="flex flex-col h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
             {/* Header */}
             <div className="flex flex-col border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
-                <div className="flex items-center justify-between px-6 py-4">
-                    <div className="flex items-center space-x-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between px-4 md:px-6 py-4 gap-4">
+                    <div className="flex items-start md:items-center space-x-4">
                         <button
                             onClick={() => router.push('/projects')}
-                            className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+                            className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors flex-shrink-0"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
-                        <div>
-                            <div className="flex items-center space-x-3">
-                                <h1 className="text-xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
+                        <div className="min-w-0">
+                            <div className="flex items-center flex-wrap gap-2">
+                                <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-[200px] md:max-w-md">{project.name}</h1>
                                 <span className={cn(
-                                    "px-2.5 py-0.5 rounded-full text-xs font-medium border",
+                                    "px-2.5 py-0.5 rounded-full text-xs font-medium border flex-shrink-0",
                                     project.status === 'ACTIVE' ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-600 border-gray-200"
                                 )}>
                                     {project.status}
                                 </span>
                             </div>
                             {project.description && (
-                                <p className="text-sm text-gray-500 mt-1 max-w-2xl truncate">{project.description}</p>
+                                <p className="text-sm text-gray-500 mt-1 max-w-full md:max-w-2xl truncate">{project.description}</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center justify-end space-x-3 mt-2 md:mt-0">
                         <button
                             onClick={() => setActiveTab('team')}
                             className="p-2 text-gray-400 hover:text-gray-500"
@@ -303,7 +303,7 @@ export default function ProjectDetailsPage() {
                 {/* Tabs */}
                 {
                     activeTab !== 'settings' && (
-                        <div className="px-6 flex space-x-6 overflow-x-auto no-scrollbar">
+                        <div className="px-4 md:px-6 flex space-x-6 overflow-x-auto no-scrollbar pb-1">
                             {tabs.map((tab: any) => {
                                 const Icon = tab.icon;
                                 const isActive = activeTab === tab.id;
@@ -330,7 +330,7 @@ export default function ProjectDetailsPage() {
 
             <div className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-900">
                 {activeTab === 'overview' && (
-                    <div className="p-6">
+                    <div className="p-4 md:p-6">
                         <ProjectOverview projectId={project.id} />
                     </div>
                 )}
@@ -352,7 +352,6 @@ export default function ProjectDetailsPage() {
                         <ProjectEpics projectId={project.id} />
                     )
                 }
-    // ...
 
                 {
                     activeTab === 'features' && (
@@ -380,7 +379,7 @@ export default function ProjectDetailsPage() {
 
                 {
                     activeTab === 'team' && (
-                        <div className="space-y-6">
+                        <div className="space-y-6 p-4 md:p-6">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                     Team Members ({(project as any).members?.length || 0})
@@ -401,64 +400,66 @@ export default function ProjectDetailsPage() {
                                 </button>
                             </div>
 
-                            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                                <table className="w-full">
-                                    <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                Member
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                Role
-                                            </th>
-                                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                        {((project as any).members || []).map((member: any) => {
-                                            const RoleIcon = getRoleIcon(member.role);
-                                            return (
-                                                <motion.tr
-                                                    key={member.id}
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                                                >
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center">
-                                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-purple flex items-center justify-center text-white font-medium mr-3">
-                                                                {getInitials(member.name)}
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-medium text-gray-900 dark:text-white">
-                                                                    {member.name}
+                            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[600px]">
+                                        <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    Member
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    Role
+                                                </th>
+                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                            {((project as any).members || []).map((member: any) => {
+                                                const RoleIcon = getRoleIcon(member.role);
+                                                return (
+                                                    <motion.tr
+                                                        key={member.id}
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                                    >
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center">
+                                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-purple flex items-center justify-center text-white font-medium mr-3">
+                                                                    {getInitials(member.name)}
                                                                 </div>
-                                                                <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                                    {member.email}
+                                                                <div>
+                                                                    <div className="font-medium text-gray-900 dark:text-white">
+                                                                        {member.name}
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                                        {member.email}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center">
-                                                            <RoleIcon className={cn('w-4 h-4 mr-2', getRoleColor(member.role))} />
-                                                            <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                                {member.role}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                                            <MoreVertical className="w-5 h-5 text-gray-400" />
-                                                        </button>
-                                                    </td>
-                                                </motion.tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center">
+                                                                <RoleIcon className={cn('w-4 h-4 mr-2', getRoleColor(member.role))} />
+                                                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {member.role}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                                                <MoreVertical className="w-5 h-5 text-gray-400" />
+                                                            </button>
+                                                        </td>
+                                                    </motion.tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     )

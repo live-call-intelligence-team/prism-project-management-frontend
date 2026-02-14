@@ -151,7 +151,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                 {/* Logo */}
                 <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
                     {!collapsed && (
-                        <Link href={getDashboardPath()} className="flex items-center space-x-2">
+                        <Link href={getDashboardPath()} className="flex items-center space-x-2" onClick={() => mobileOpen && onMobileClose?.()}>
                             <OryxLogo variant="full" size={32} />
                         </Link>
                     )}
@@ -160,10 +160,18 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                             <OryxLogo variant="icon" size={32} />
                         </div>
                     )}
+
+                    {/* Mobile Close Button */}
+                    <button
+                        onClick={onMobileClose}
+                        className="md:hidden p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                        <ChevronLeft className="w-5 h-5 text-gray-500" />
+                    </button>
                 </div>
 
                 {/* Navigation */}
-                <nav className="p-4 space-y-2">
+                <nav className="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-180px)]">
                     {filteredNavItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = pathname === item.href;
@@ -172,6 +180,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                onClick={() => mobileOpen && onMobileClose?.()}
                                 className={cn(
                                     'flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200',
                                     'hover:bg-gray-100 dark:hover:bg-gray-800',
@@ -180,14 +189,14 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                                     collapsed && 'justify-center'
                                 )}
                             >
-                                <Icon className={cn('w-5 h-5', isActive && 'text-primary-600 dark:text-primary-400')} />
+                                <Icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-primary-600 dark:text-primary-400')} />
                                 {!collapsed && (
-                                    <span className="font-medium">{item.name}</span>
+                                    <span className="font-medium truncate">{item.name}</span>
                                 )}
                                 {isActive && !collapsed && (
                                     <motion.div
                                         layoutId="activeNav"
-                                        className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600 dark:bg-primary-400"
+                                        className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600 dark:bg-primary-400 flex-shrink-0"
                                     />
                                 )}
                             </Link>
@@ -197,7 +206,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
 
                 {/* User Profile and Logout */}
                 {!collapsed && (
-                    <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+                    <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 p-4 bg-card dark:bg-gray-900">
                         <div className="flex-shrink-0 w-full group block">
                             <div className="flex items-center">
                                 <div className="h-9 w-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
@@ -211,24 +220,29 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                                         {user?.role}
                                     </p>
                                 </div>
-                                <NotificationBell />
-                                <button
-                                    onClick={handleLogout}
-                                    className="ml-2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-500"
-                                >
-                                    <LogOut className="h-5 w-5" />
-                                </button>
+                                <div className="flex items-center">
+                                    <NotificationBell />
+                                    <button
+                                        onClick={handleLogout}
+                                        className="ml-1 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-500"
+                                    >
+                                        <LogOut className="h-5 w-5" />
+                                    </button>
+                                </div>
                             </div>
+                        </div>
+                        <div className="mt-2 text-[10px] text-gray-400 text-center">
+                            © 2026 ORYX v1.0
                         </div>
                     </div>
                 )}
 
-                {/* Collapse button */}
+                {/* Collapse button (Desktop Only) */}
                 <button
                     onClick={toggleCollapse}
                     className={cn(
                         'absolute -right-3 top-20 w-6 h-6 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
-                        'flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200',
+                        'hidden md:flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200',
                         'hover:scale-110'
                     )}
                 >
@@ -238,15 +252,6 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
                         <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                     )}
                 </button>
-
-                {/* Footer */}
-                {!collapsed && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-800">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                            © 2026 ORYX Technologies
-                        </div>
-                    </div>
-                )}
             </motion.aside>
         </>
     );

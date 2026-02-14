@@ -142,7 +142,7 @@ export default function ProjectsPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         Projects
@@ -156,7 +156,7 @@ export default function ProjectsPage() {
                     <button
                         onClick={openCreateModal}
                         className={cn(
-                            'flex items-center px-4 py-2 rounded-lg font-medium',
+                            'flex items-center justify-center px-4 py-2 rounded-lg font-medium w-full md:w-auto',
                             'bg-gradient-to-r from-primary-500 to-accent-purple',
                             'text-white shadow-lg',
                             'hover:shadow-glow-purple hover:scale-[1.02]',
@@ -171,9 +171,9 @@ export default function ProjectsPage() {
             </div>
 
             {/* Filters and View Toggle */}
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
                 {/* Search */}
-                <div className="flex-1 max-w-md">
+                <div className="flex-1 max-w-full md:max-w-md">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
@@ -194,7 +194,7 @@ export default function ProjectsPage() {
                 </div>
 
                 {/* View Toggle */}
-                <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                <div className="flex items-center justify-end space-x-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg self-end md:self-auto">
                     <button
                         onClick={() => setViewMode('grid')}
                         className={cn(

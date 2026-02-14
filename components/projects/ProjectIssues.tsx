@@ -340,21 +340,23 @@ export function ProjectIssues({ projectId, initialView = 'list', hideViewToggle 
                                     </h3>
                                 )}
 
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 overflow-x-auto">
+                                <div className="flex overflow-x-auto pb-4 gap-4 snap-x snap-mandatory md:snap-none">
                                     {['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'].map(status => (
-                                        <div key={status} className="bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 p-3 min-w-[250px]">
+                                        <div key={status} className="flex-shrink-0 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 p-3 w-[85vw] md:w-[300px] snap-center">
                                             <div className="flex justify-between items-center mb-3">
                                                 <h4 className="text-xs font-semibold text-gray-500 uppercase">{status.replace('_', ' ')}</h4>
                                                 <span className="text-[10px] bg-gray-200 dark:bg-gray-700 px-1.5 rounded text-gray-600 dark:text-gray-300">
                                                     {groupColumns[status]?.length || 0}
                                                 </span>
                                             </div>
-                                            <div className="space-y-2">
+                                            <div className="space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto pr-1 custom-scrollbar">
                                                 {groupColumns[status]?.map(issue => (
                                                     <IssueCard key={issue.id} issue={issue} onClick={() => handleEditIssue(issue)} />
                                                 ))}
                                                 {(!groupColumns[status] || groupColumns[status].length === 0) && (
-                                                    <div className="h-10 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-lg opacity-50"></div>
+                                                    <div className="h-20 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-lg flex items-center justify-center text-xs text-gray-400">
+                                                        No issues
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>

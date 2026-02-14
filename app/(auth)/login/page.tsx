@@ -80,18 +80,18 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#050505] relative overflow-hidden text-neutral-200 font-sans selection:bg-gold-500/30">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] relative overflow-hidden text-neutral-200 font-sans selection:bg-gold-500/30">
             {/* Background Atmosphere */}
             <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-black to-black opacity-80" />
             <MorphingBackground />
 
-            <div className="relative z-10 w-full max-w-[1200px] h-full flex flex-col items-center justify-center p-4">
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
 
                 {/* Rotating Logo Container */}
                 {/* We use LayoutGroup to smoothly animate the layout change from Center to Top-Center/Left */}
                 <motion.div
                     layout
-                    className={`flex flex-col items-center transition-all duration-1000 ease-in-out absolute ${stage === 'intro' ? 'top-1/2 -translate-y-1/2' : 'top-12'}`}
+                    className={`flex flex-col items-center transition-all duration-1000 ease-in-out absolute ${stage === 'intro' ? 'top-1/2 -translate-y-1/2' : 'top-8 md:top-12'}`}
                 >
                     <motion.div
                         layoutId="logo-container"
@@ -105,7 +105,7 @@ export default function LoginPage() {
                     </motion.div>
 
                     <motion.div layoutId="brand-text" className="text-center">
-                        <h1 className={`font-extralight tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-gray-500 ${stage === 'intro' ? 'text-4xl mt-6' : 'text-2xl'}`}>
+                        <h1 className={`font-extralight tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-gray-500 ${stage === 'intro' ? 'text-4xl mt-6' : 'text-xl md:text-2xl'}`}>
                             ORYX
                         </h1>
                     </motion.div>
@@ -118,7 +118,7 @@ export default function LoginPage() {
                             initial={{ opacity: 0, y: 40 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
-                            className="w-full max-w-md mt-32 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+                            className="w-[90%] md:w-full max-w-md mt-24 md:mt-32 bg-white/5 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)]"
                         >
                             <div className="mb-8 text-center">
                                 <h2 className="text-xl text-[#E5E4E2] font-light tracking-wide">Welcome Back</h2>

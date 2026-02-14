@@ -15,6 +15,7 @@ export default function DashboardLayout({
 }) {
     const { user } = useAuthStore();
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Animation trigger state
     const [isRevealed, setIsRevealed] = useState(false);
@@ -32,15 +33,22 @@ export default function DashboardLayout({
                         initial={{ x: '-100%' }}
                         animate={isRevealed ? { x: 0 } : { x: '-100%' }}
                         transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }} // Custom cubic-bezier
-                        className="fixed inset-y-0 z-30 flex-shrink-0"
+                        className="fixed inset-y-0 left-0 z-30 flex-shrink-0"
                     >
-                        <Sidebar onCollapsedChange={setSidebarCollapsed} />
+                        <Sidebar
+                            onCollapsedChange={setSidebarCollapsed}
+                            mobileOpen={mobileMenuOpen}
+                            onMobileClose={() => setMobileMenuOpen(false)}
+                        />
                     </motion.div>
 
                     {/* Main Content with fade-up stagger */}
-                    <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
+                    <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-64'} ml-0`}>
 
-                        <Header sidebarCollapsed={sidebarCollapsed} />
+                        <Header
+                            sidebarCollapsed={sidebarCollapsed}
+                            onMobileMenuClick={() => setMobileMenuOpen(true)}
+                        />
 
                         <motion.main
                             initial={{ opacity: 0, y: 30 }}
