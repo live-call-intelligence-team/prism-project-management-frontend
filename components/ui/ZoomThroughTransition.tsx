@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OryxLogo } from './OryxLogo';
+import { PrismLogo } from './PrismLogo';
 
 interface CinematicIntroProps {
     children: React.ReactNode;
@@ -110,7 +110,7 @@ export const ZoomThroughTransition: React.FC<CinematicIntroProps> = ({ children,
                             ease: [0.16, 1, 0.3, 1] // Custom refined curve
                         }}
                     >
-                        <OryxLogo variant="icon" size={120} animate={true} />
+                        <PrismLogo variant="icon" size={120} animate={true} />
                     </motion.div>
 
                     {/* Speed Lines / Portal Effect */}

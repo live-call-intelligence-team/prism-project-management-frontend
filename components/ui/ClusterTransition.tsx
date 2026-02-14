@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OryxLogo } from './OryxLogo';
+import { PrismLogo } from './PrismLogo';
 import { CheckCircle2, Cpu, Wifi, Activity } from 'lucide-react';
 
 interface ClusterTransitionProps {
@@ -92,7 +92,7 @@ export const ClusterTransition: React.FC<ClusterTransitionProps> = ({ children, 
                             transition={{ duration: 1, ease: "easeOut" }}
                             className="relative z-10 mb-12"
                         >
-                            <OryxLogo variant="icon" size={120} animate={false} className={phase === 'ignition' ? 'animate-pulse' : ''} />
+                            <PrismLogo variant="icon" size={120} animate={false} className={phase === 'ignition' ? 'animate-pulse' : ''} />
 
                             {/* Ring Ripple */}
                             {phase === 'ignition' && (
@@ -128,7 +128,7 @@ export const ClusterTransition: React.FC<ClusterTransitionProps> = ({ children, 
                                         className="absolute inset-0 flex flex-col items-center justify-center"
                                     >
                                         <h2 className="text-2xl font-bold text-white tracking-[0.2em] border-b-2 border-cyan-500 pb-2 mb-2">
-                                            ORYX_INIT
+                                            PRISM_INIT
                                         </h2>
                                         <p className="text-cyan-500 text-sm">WELCOME {userName.toUpperCase()}</p>
                                     </motion.div>

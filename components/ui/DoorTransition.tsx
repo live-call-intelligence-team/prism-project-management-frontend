@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { OryxLogo } from './OryxLogo';
+import { PrismLogo } from './PrismLogo';
 
 interface DoorTransitionProps {
     children: React.ReactNode;
@@ -75,7 +75,7 @@ export function DoorTransition({ children, userName = 'User' }: DoorTransitionPr
                                         }}
                                         className="w-24 h-24 flex items-center justify-center p-4 bg-blue-500/10 rounded-full"
                                     >
-                                        <OryxLogo variant="icon" size={60} />
+                                        <PrismLogo variant="icon" size={60} />
                                     </motion.div>
                                 </div>
                             </motion.div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OryxLogo } from './OryxLogo';
+import { PrismLogo } from './PrismLogo';
 import { User } from 'lucide-react';
 import { Particles } from './Particles';
 
@@ -104,7 +104,7 @@ export const ExecutiveEntrance: React.FC<ExecutiveEntranceProps> = ({ children, 
                         >
                             {/* Metallic Texture Simulation Wrapper */}
                             <div className="relative w-48 h-48 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]">
-                                <OryxLogo variant="icon" size={120} animate={true} />
+                                <PrismLogo variant="icon" size={120} animate={true} />
                                 {/* Add a simple shine overlay if feasible without breaking layout */}
                             </div>
                         </motion.div>

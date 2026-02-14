@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OryxLogo } from './OryxLogo';
+import { PrismLogo } from './PrismLogo';
 import { usePathname } from 'next/navigation';
 
 interface IrisTransitionProps {
@@ -97,7 +97,7 @@ export const IrisTransition: React.FC<IrisTransitionProps> = ({ children, userNa
                 onAnimationComplete={() => setIsAnimating(false)}
             >
                 <div className="w-8 h-8 flex items-center justify-center">
-                    <OryxLogo size={32} animate />
+                    <PrismLogo size={32} animate />
                 </div>
             </motion.div>
 
