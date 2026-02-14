@@ -128,7 +128,7 @@ export default function ClientDashboardPage() {
                         My Projects
                     </h2>
                     <Link
-                        href="/client/projects"
+                        href="/projects"
                         className="text-sm font-medium text-primary hover:underline flex items-center"
                     >
                         View All <ArrowRight className="ml-1 h-4 w-4" />
@@ -148,7 +148,7 @@ export default function ClientDashboardPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {projects.slice(0, 3).map((project) => (
-                            <Link href={`/client/projects/${project.id}`} key={project.id}>
+                            <Link href={`/projects/${project.id}`} key={project.id}>
                                 <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full group hover:-translate-y-1">
                                     <CardHeader className="pb-3 space-y-1">
                                         <div className="flex justify-between items-start">

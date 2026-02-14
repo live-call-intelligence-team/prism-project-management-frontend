@@ -89,7 +89,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
     const clientNavItems = [
         { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
         { name: 'My Issues', href: '/client/my-issues', icon: ListTodo },
-        { name: 'My Projects', href: '/client/projects', icon: FolderKanban },
+        { name: 'My Projects', href: '/projects', icon: FolderKanban },
         { name: 'Settings', href: '/client/settings', icon: Settings },
     ];
 
