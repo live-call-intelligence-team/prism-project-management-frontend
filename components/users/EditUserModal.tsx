@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { usersApi, User, UserRole } from '@/lib/api/endpoints/users';
+import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import { User as UserIcon, Briefcase, Activity } from 'lucide-react';
 
 interface EditUserModalProps {
     isOpen: boolean;
@@ -55,51 +58,41 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                >
-                    <X className="h-6 w-6" />
-                </button>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Edit User"
+            description="Update user details and permissions"
+            size="md"
+        >
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <Input
+                        label="First Name"
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                        required
+                        leftIcon={<UserIcon className="w-4 h-4" />}
+                    />
+                    <Input
+                        label="Last Name"
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                        required
+                        leftIcon={<UserIcon className="w-4 h-4" />}
+                    />
+                </div>
 
-                <h2 className="text-xl font-bold mb-4">Edit User</h2>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                First Name
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={formData.firstName}
-                                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                            />
+                <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Role
+                    </label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Briefcase className="h-4 w-4 text-gray-400" />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Last Name
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={formData.lastName}
-                                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Role
-                        </label>
                         <select
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
                         >
@@ -109,13 +102,18 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
                             <option value="CLIENT">Client</option>
                         </select>
                     </div>
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Status
-                        </label>
+                <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Status
+                    </label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Activity className="h-4 w-4 text-gray-400" />
+                        </div>
                         <select
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                             value={formData.isActive ? 'true' : 'false'}
                             onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'true' })}
                         >
@@ -123,25 +121,25 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
                             <option value="false">Inactive</option>
                         </select>
                     </div>
+                </div>
 
-                    <div className="flex justify-end pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="mr-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                        >
-                            {isLoading ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div className="flex justify-end pt-4 gap-3">
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        isLoading={isLoading}
+                    >
+                        Save Changes
+                    </Button>
+                </div>
+            </form>
+        </Modal>
     );
 }
