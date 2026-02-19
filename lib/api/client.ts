@@ -68,7 +68,8 @@ apiClient.interceptors.response.use(
         if (error.code === 'ERR_NETWORK') {
             console.error('Network Error detected on:', originalRequest?.method?.toUpperCase(), originalRequest?.url);
             console.error('Base URL:', originalRequest?.baseURL || apiClient.defaults.baseURL);
-            console.error('Ensure the backend is reachable and CORS is correctly configured.');
+            console.error('Complete URL:', (originalRequest?.baseURL || apiClient.defaults.baseURL) + (originalRequest?.url || ''));
+            console.error('Possible causes: Backend is down, CORS mismatch, or incorrect URL.');
         }
 
         return Promise.reject(error);
