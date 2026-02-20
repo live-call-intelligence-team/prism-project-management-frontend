@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
                         </Link>
 
                         {/* Projects Stats */}
-                        <Link href="/admin/projects">
+                        <Link href="/projects">
                             <Card className="hover-lift cursor-pointer transition-all">
                                 <CardContent className="pt-6">
                                     <div className="flex items-center justify-between">
@@ -114,42 +114,46 @@ export default function AdminDashboardPage() {
                         </Link>
 
                         {/* Issues Stats */}
-                        <Card className="hover-lift cursor-pointer transition-all">
-                            <CardContent className="pt-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Issues</p>
-                                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats?.overview.issues || 0}</p>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                            Across all projects
-                                        </p>
+                        <Link href="/issues">
+                            <Card className="hover-lift cursor-pointer transition-all">
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Issues</p>
+                                            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats?.overview.issues || 0}</p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Across all projects
+                                            </p>
+                                        </div>
+                                        <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                            <Shield className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                                        </div>
                                     </div>
-                                    <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                                        <Shield className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        </Link>
 
                         {/* Active Sprints */}
-                        <Card className="hover-lift cursor-pointer transition-all">
-                            <CardContent className="pt-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Sprints</p>
-                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
-                                            {stats?.overview.activeSprints || 0}
-                                        </p>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                            Currently running
-                                        </p>
+                        <Link href="/sprints">
+                            <Card className="hover-lift cursor-pointer transition-all">
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Sprints</p>
+                                            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                                                {stats?.overview.activeSprints || 0}
+                                            </p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Currently running
+                                            </p>
+                                        </div>
+                                        <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                            <HardDrive className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                                        </div>
                                     </div>
-                                    <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                                        <HardDrive className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        </Link>
                     </div>
                 )}
 
@@ -192,7 +196,7 @@ export default function AdminDashboardPage() {
                                             </div>
                                         </div>
                                     ))}
-                                    <Link href="/admin/projects">
+                                    <Link href="/projects">
                                         <button className="w-full mt-4 text-sm text-primary-600 dark:text-primary-400 hover:underline">
                                             View All Projects →
                                         </button>
@@ -205,7 +209,7 @@ export default function AdminDashboardPage() {
                                     description="Create your first project to get started."
                                     action={{
                                         label: "Create Project",
-                                        onClick: () => window.location.href = '/admin/projects/new'
+                                        onClick: () => window.location.href = '/projects/new'
                                     }}
                                 />
                             )}
