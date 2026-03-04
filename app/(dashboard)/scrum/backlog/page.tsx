@@ -384,20 +384,38 @@ export default function BacklogPage() {
         return () => clearTimeout(timer);
     }, [search, filterType, filterPriority, selectedProjectId]); // Re-fetch on filter change
 
+    const buildBacklogParams = () => {
+        const params: { search?: string; type?: string; priority?: string } = {};
+        if (search) params.search = search;
+        if (filterType) params.type = filterType;
+        if (filterPriority) params.priority = filterPriority;
+        return params;
+    };
+
     const fetchBacklogOnly = async () => {
         if (!selectedProjectId) return;
         try {
-            // Pass filters to API
-            const params: { search?: string; type?: string; priority?: string } = {};
-            if (search) params.search = search;
-            if (filterType) params.type = filterType;
-            if (filterPriority) params.priority = filterPriority;
-
-            const backlogData = await issuesApi.getBacklog(selectedProjectId, params);
+            const backlogData = await issuesApi.getBacklog(selectedProjectId, buildBacklogParams());
             setBacklogIssues(backlogData.issues || []);
         } catch (err) {
             console.error('Failed to filter backlog', err);
         }
+    };
+
+    const fetchSprintAndIssueState = async (projectId: string) => {
+        const [sprintsData, backlogData] = await Promise.all([
+            sprintsApi.getProjectSprints(projectId),
+            issuesApi.getBacklog(projectId, buildBacklogParams())
+        ]);
+
+        setSprints(sprintsData);
+        setBacklogIssues(backlogData.issues || []);
+
+        const sprintListMap: Record<string, Issue[]> = {};
+        sprintsData.forEach((s) => {
+            sprintListMap[s.id] = s.issues || [];
+        });
+        setSprintIssues(sprintListMap);
     };
 
     // Initial Load & Project Switch
@@ -422,20 +440,7 @@ export default function BacklogPage() {
                 }
 
                 // 3. Fetch Sprints & Backlog for this project
-                const [sprintsData, backlogData] = await Promise.all([
-                    sprintsApi.getProjectSprints(pid),
-                    issuesApi.getBacklog(pid)
-                ]);
-
-                setSprints(sprintsData);
-                setBacklogIssues(backlogData.issues || []);
-
-                // Map sprint issues
-                const sprintListMap: Record<string, Issue[]> = {};
-                sprintsData.forEach(s => {
-                    sprintListMap[s.id] = s.issues || [];
-                });
-                setSprintIssues(sprintListMap);
+                await fetchSprintAndIssueState(pid);
 
             } catch (err) {
                 console.error(err);
@@ -552,11 +557,20 @@ export default function BacklogPage() {
     };
 
     const handleCompleteSprint = async (sprintId: string) => {
+        const previousSprints = sprints;
+        setSprints(prev => prev.map(s => s.id === sprintId ? { ...s, status: 'COMPLETED' } : s));
+
         try {
             await sprintsApi.complete(sprintId);
             success('Sprint completed!');
-            setSprints(prev => prev.map(s => s.id === sprintId ? { ...s, status: 'COMPLETED' } : s));
+            if (selectedProjectId) {
+                await fetchSprintAndIssueState(selectedProjectId);
+            }
         } catch (e) {
+            setSprints(previousSprints);
+            if (selectedProjectId) {
+                await fetchSprintAndIssueState(selectedProjectId);
+            }
             toastError('Failed to complete sprint');
         }
     };
@@ -574,22 +588,37 @@ export default function BacklogPage() {
     const handleDeleteSprint = async () => {
         if (!sprintToDelete) return;
         setIsDeleteLoading(true);
+
+        const sprintId = sprintToDelete.id;
+        const previousSprints = sprints;
+        const previousBacklogIssues = backlogIssues;
+        const previousSprintIssues = sprintIssues;
+        const deletedSprintIssues = sprintIssues[sprintId] || [];
+
+        setSprints(prev => prev.filter(s => s.id !== sprintId));
+        if (deletedSprintIssues.length > 0) {
+            setBacklogIssues(prev => [...deletedSprintIssues, ...prev]);
+        }
+        setSprintIssues(prev => {
+            const next = { ...prev };
+            delete next[sprintId];
+            return next;
+        });
+
         try {
-            await sprintsApi.delete(sprintToDelete.id);
-            setSprints(prev => prev.filter(s => s.id !== sprintToDelete.id));
-
-            // Move issues to backlog locally
-            const deletedSprintIssues = sprintIssues[sprintToDelete.id] || [];
-            if (deletedSprintIssues.length > 0) {
-                setBacklogIssues(prev => [...deletedSprintIssues, ...prev]);
-                const newMap = { ...sprintIssues };
-                delete newMap[sprintToDelete.id];
-                setSprintIssues(newMap);
-            }
-
+            await sprintsApi.delete(sprintId);
             success('Sprint deleted');
             setSprintToDelete(null);
+            if (selectedProjectId) {
+                await fetchSprintAndIssueState(selectedProjectId);
+            }
         } catch (e) {
+            setSprints(previousSprints);
+            setBacklogIssues(previousBacklogIssues);
+            setSprintIssues(previousSprintIssues);
+            if (selectedProjectId) {
+                await fetchSprintAndIssueState(selectedProjectId);
+            }
             toastError('Failed to delete sprint');
         } finally {
             setIsDeleteLoading(false);
@@ -633,8 +662,7 @@ export default function BacklogPage() {
     const fetchSprintsReorder = async () => {
         if (!selectedProjectId) return;
         try {
-            const data = await sprintsApi.getProjectSprints(selectedProjectId);
-            setSprints(data);
+            await fetchSprintAndIssueState(selectedProjectId);
         } catch (e) {
             console.error('Failed to refresh sprints');
         }

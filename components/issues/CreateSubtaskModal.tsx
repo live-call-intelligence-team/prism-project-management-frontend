@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, Loader2 } from 'lucide-react';
-import { issuesApi } from '@/lib/api/issues';
+import { issuesApi } from '@/lib/api/endpoints/issues';
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required'),

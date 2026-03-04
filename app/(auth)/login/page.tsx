@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock } from 'lucide-react';
 import { ParticleButton } from '@/components/ui/ParticleButton';
 import Input from '@/components/ui/Input';
-import { useToast } from '@/components/ui/Toast';
+import { ToastContainer, useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/lib/store/authStore';
 import { PremiumLogo } from '@/components/ui/PremiumLogo';
 import { MorphingBackground } from '@/components/ui/MorphingBackground';
@@ -22,13 +22,13 @@ const API_URL = getApiUrl();
 
 export default function LoginPage() {
     const router = useRouter();
-    const { success, error: showError } = useToast();
-    const setUser = useAuthStore((state) => state.setUser);
+    const { toasts, close, success, error: showError } = useToast();
 
     const [loginId, setLoginId] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [formError, setFormError] = useState('');
 
     // Animation Stages: 'intro' (logo center) -> 'form' (logo top-left, form visible)
     const [stage, setStage] = useState<'intro' | 'form'>('intro');
@@ -45,34 +45,72 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setFormError('');
 
         try {
             const isEmail = loginId.includes('@');
             const payload = isEmail ? { email: loginId, password } : { username: loginId, password };
-            const response = await axios.post(`${API_URL}/auth/login`, payload);
+            const response = await axios.post(`${API_URL}/auth/login`, payload, {
+                timeout: 12000,
+            });
 
-            if (response.data.success) {
-                const { user, accessToken, forcePasswordChange } = response.data.data;
-                setUser({ ...user, role: user.role.toLowerCase() });
-                localStorage.setItem('user', JSON.stringify(user));
-                localStorage.setItem('token', accessToken);
-
-                if (forcePasswordChange) {
-                    router.push('/change-password');
-                    return;
-                }
-
-                success('Welcome back!', `Signed in successfully`);
-                const roleRoutes: Record<string, string> = {
-                    admin: '/admin/dashboard',
-                    scrum_master: '/scrum/dashboard',
-                    employee: '/employee/dashboard',
-                    client: '/client/dashboard',
-                };
-                router.push(roleRoutes[user.role.toLowerCase()] || '/dashboard');
+            if (response.data?.data?.mfaRequired) {
+                const msg = response.data?.message || 'MFA token required for this account.';
+                setFormError(msg);
+                showError('Login Failed', msg);
+                return;
             }
-        } catch (err: any) {
-            const msg = err.response?.data?.message || 'Invalid credentials';
+
+            if (!response.data?.success || !response.data?.data?.user || !response.data?.data?.accessToken) {
+                throw new Error(response.data?.message || 'Login failed');
+            }
+
+            const { user, accessToken, refreshToken, forcePasswordChange } = response.data.data;
+            const normalizedUser = { ...user, role: String(user.role || '').toUpperCase() };
+
+            localStorage.setItem('user', JSON.stringify(normalizedUser));
+            localStorage.setItem('token', accessToken);
+            if (refreshToken) {
+                localStorage.setItem('refreshToken', refreshToken);
+            }
+
+            useAuthStore.setState({
+                user: normalizedUser,
+                token: accessToken,
+                isAuthenticated: true,
+                error: null,
+            });
+
+            if (forcePasswordChange) {
+                router.push('/change-password');
+                return;
+            }
+
+            success('Welcome back!', `Signed in successfully`);
+            const roleRoutes: Record<string, string> = {
+                admin: '/admin/dashboard',
+                project_manager: '/pm/dashboard',
+                scrum_master: '/scrum/dashboard',
+                employee: '/employee/dashboard',
+                client: '/client/dashboard',
+            };
+            router.push(roleRoutes[normalizedUser.role.toLowerCase()] || '/dashboard');
+        } catch (err: unknown) {
+            const axiosMessage =
+                axios.isAxiosError(err) && typeof err.response?.data?.message === 'string'
+                    ? err.response.data.message
+                    : undefined;
+            const timeoutMessage =
+                axios.isAxiosError(err) && err.code === 'ECONNABORTED'
+                    ? 'Login request timed out. Please check backend connectivity and try again.'
+                    : undefined;
+            const networkMessage =
+                axios.isAxiosError(err) && err.code === 'ERR_NETWORK'
+                    ? 'Network/CORS error while contacting backend. If you opened the app on a LAN URL (for example 192.168.x.x:3000), use http://localhost:3000 or allow that origin in backend CORS.'
+                    : undefined;
+            const genericMessage = err instanceof Error ? err.message : undefined;
+            const msg = timeoutMessage || networkMessage || axiosMessage || genericMessage || 'Invalid credentials';
+            setFormError(msg);
             showError('Login Failed', msg);
         } finally {
             setIsLoading(false);
@@ -164,6 +202,12 @@ export default function LoginPage() {
                                     required
                                 />
 
+                                {formError && (
+                                    <p className="text-sm text-red-400 bg-red-500/10 border border-red-400/30 rounded-lg px-3 py-2">
+                                        {formError}
+                                    </p>
+                                )}
+
                                 <div className="flex items-center justify-between text-sm">
                                     <label className="flex items-center cursor-pointer group">
                                         <input
@@ -182,6 +226,7 @@ export default function LoginPage() {
                                     variant="primary"
                                     className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-medium tracking-wide border-none shadow-[0_0_20px_rgba(16,185,129,0.2)] h-12 rounded-xl"
                                     isLoading={isLoading}
+                                    disabled={isLoading}
                                 >
                                     Sign In
                                 </ParticleButton>
@@ -190,8 +235,7 @@ export default function LoginPage() {
                     )}
                 </AnimatePresence>
             </div>
+            <ToastContainer toasts={toasts} onClose={close} />
         </div>
     );
 }
-
-

@@ -1,4 +1,5 @@
 import apiClient from '../client';
+import axios from 'axios';
 
 export interface Issue {
     id: string;
@@ -54,6 +55,46 @@ export interface IssuesResponse {
     };
 }
 
+export type WritableIssueType = Exclude<Issue['type'], 'EPIC'>;
+export type IssueMutationPayload = Omit<Partial<Issue>, 'type'> & { type?: WritableIssueType };
+
+export interface CreateStoryPayload {
+    projectId: string;
+    epicId: string;
+    featureId?: string;
+    title: string;
+    description?: string;
+    assigneeId?: string;
+    storyPoints?: number;
+    priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+}
+
+export interface IssueHierarchyResponse {
+    epics: Issue[];
+    unassigned: Issue[];
+}
+
+const ensureNonEpicIssuePayload = <T extends Record<string, any>>(data: T): T => {
+    if (String(data?.type || '').toUpperCase() === 'EPIC') {
+        throw new Error('Issue type EPIC is no longer supported on /issues. Use Epics module');
+    }
+    return data;
+};
+
+const normalizeIssueError = (error: unknown): never => {
+    if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const serverMessage = (error.response?.data as any)?.message || (error.response?.data as any)?.error;
+        if (status === 400 && typeof serverMessage === 'string' && /epic/i.test(serverMessage)) {
+            throw new Error('Use Epics module');
+        }
+        if (typeof serverMessage === 'string' && serverMessage.trim()) {
+            throw new Error(serverMessage);
+        }
+    }
+    throw error instanceof Error ? error : new Error('Issue request failed');
+};
+
 export const issuesApi = {
     // Get all issues
     getAll: async (params?: {
@@ -79,25 +120,71 @@ export const issuesApi = {
     },
 
     // Create issue
-    create: async (data: Partial<Issue>) => {
-        const response = await apiClient.post<{ success: boolean; data: { issue: Issue } }>('/issues', data);
-        console.log('Create Issue Response:', response);
+    create: async (data: IssueMutationPayload) => {
+        try {
+            const payload = ensureNonEpicIssuePayload(data);
+            const response = await apiClient.post<{ success: boolean; data: { issue: Issue } }>('/issues', payload);
+            console.log('Create Issue Response:', response);
 
-        if (!response.data?.data?.issue) {
-            console.error('Invalid response structure:', response.data);
-            if (response.data && (response.data as any).issue) {
-                return (response.data as any).issue;
+            if (!response.data?.data?.issue) {
+                console.error('Invalid response structure:', response.data);
+                if (response.data && (response.data as any).issue) {
+                    return (response.data as any).issue;
+                }
+                throw new Error('Invalid response from server');
             }
-            throw new Error('Invalid response from server');
-        }
 
-        return response.data.data.issue;
+            return response.data.data.issue;
+        } catch (error) {
+            normalizeIssueError(error);
+        }
     },
 
     // Update issue
-    update: async (id: string, data: Partial<Issue>) => {
-        const response = await apiClient.put<{ success: boolean; data: { issue: Issue } }>(`/issues/${id}`, data);
+    update: async (id: string, data: IssueMutationPayload) => {
+        try {
+            const payload = ensureNonEpicIssuePayload(data);
+            const response = await apiClient.put<{ success: boolean; data: { issue: Issue } }>(`/issues/${id}`, payload);
+            return response.data.data.issue;
+        } catch (error) {
+            normalizeIssueError(error);
+        }
+    },
+
+    // Create story under an epic
+    createStory: async (data: CreateStoryPayload) => {
+        const response = await apiClient.post<{ success: boolean; data: { issue: Issue } }>('/issues/create-story', data);
         return response.data.data.issue;
+    },
+
+    // Get issue hierarchy (epics + unassigned) for backlog workflows
+    getHierarchy: async (projectId: string): Promise<IssueHierarchyResponse> => {
+        const response = await apiClient.get<{ success: boolean; data: IssueHierarchyResponse }>(`/issues/hierarchy/${projectId}`);
+        return response.data.data;
+    },
+
+    // Get child issues for a parent issue
+    getChildren: async (id: string) => {
+        const response = await apiClient.get<{ success: boolean; data: { children: Issue[] } | Issue[] }>(`/issues/${id}/children`);
+        return response.data.data;
+    },
+
+    // Create subtask under a parent story
+    createSubtask: async (data: {
+        parentId: string;
+        title: string;
+        description?: string;
+        assigneeId?: string;
+        priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    }) => {
+        const response = await apiClient.post<{ success: boolean; data: { issue: Issue } }>('/issues/create-subtask', data);
+        return response.data.data.issue;
+    },
+
+    // Move an issue to a sprint (or backlog when sprintId is null)
+    moveToSprint: async (id: string, sprintId: string | null) => {
+        const response = await apiClient.put<{ success: boolean; message?: string }>(`/issues/${id}/move-to-sprint`, { sprintId });
+        return response.data;
     },
 
     // Delete issue

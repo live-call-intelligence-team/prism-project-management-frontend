@@ -1,5 +1,17 @@
 import apiClient from '../client';
 
+export type ClientStatsRole = 'ADMIN' | 'PROJECT_MANAGER' | 'SCRUM_MASTER' | 'CLIENT' | 'EMPLOYEE' | string;
+
+const CLIENT_STATS_ALLOWED_ROLES = new Set(['ADMIN', 'PROJECT_MANAGER', 'SCRUM_MASTER', 'CLIENT']);
+
+export const canAccessClientStats = (role?: ClientStatsRole) => {
+    if (!role) return true;
+    return CLIENT_STATS_ALLOWED_ROLES.has(role.toUpperCase());
+};
+
+export const getClientStatsLabel = (role?: ClientStatsRole) =>
+    role?.toUpperCase() === 'CLIENT' ? 'My client project stats' : 'Client project stats';
+
 export interface DashboardOverview {
     overview: {
         projects: number;
@@ -30,7 +42,12 @@ export const analyticsApi = {
         return response.data.data;
     },
 
-    getClientStats: async () => {
+    getClientStats: async (role?: ClientStatsRole) => {
+        if (!canAccessClientStats(role)) {
+            const forbiddenError = new Error('Access denied');
+            (forbiddenError as any).status = 403;
+            throw forbiddenError;
+        }
         const response = await apiClient.get('/analytics/client-stats');
         return response.data.data;
     },

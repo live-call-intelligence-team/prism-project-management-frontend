@@ -6,7 +6,6 @@ import { Bell, Check, Loader2 } from 'lucide-react';
 import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
-import Link from 'next/link';
 
 export default function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
@@ -44,17 +43,23 @@ export default function NotificationBell() {
         try {
             await notificationsApi.markAsRead(id);
             // Optimistic update
-            if (id === 'all') {
-                setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-                setUnreadCount(0);
-                success('All marked as read');
-            } else {
-                setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-                setUnreadCount(prev => Math.max(0, prev - 1));
-            }
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+            setUnreadCount(prev => Math.max(0, prev - 1));
         } catch (error) {
             console.error(error);
             toastError('Failed to mark as read');
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await notificationsApi.markAllAsRead();
+            setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+            setUnreadCount(0);
+            success('All marked as read');
+        } catch (error) {
+            console.error(error);
+            toastError('Failed to mark all as read');
         }
     };
 
@@ -83,7 +88,7 @@ export default function NotificationBell() {
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
                         {unreadCount > 0 && (
                             <button
-                                onClick={() => handleMarkAsRead('all')}
+                                onClick={handleMarkAllAsRead}
                                 className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center"
                             >
                                 <Check className="w-3 h-3 mr-1" />

@@ -80,7 +80,7 @@ export function Header({ sidebarCollapsed = false, onMobileMenuClick }: HeaderPr
 
     const handleMarkAllAsRead = async () => {
         try {
-            await notificationsApi.markAsRead('all');
+            await notificationsApi.markAllAsRead();
             setNotifications(notifications.map(n => ({ ...n, isRead: true })));
             setUnreadCount(0);
         } catch (err) {

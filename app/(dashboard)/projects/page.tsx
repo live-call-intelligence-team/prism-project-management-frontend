@@ -27,6 +27,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/lib/store/authStore';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import axios from 'axios';
 
 export default function ProjectsPage() {
     const router = useRouter();
@@ -81,7 +82,12 @@ export default function ProjectsPage() {
             setIsProjectModalOpen(false);
         } catch (err) {
             console.error('Failed to save project:', err);
-            error('Failed to save project');
+            if (axios.isAxiosError(err) && err.response?.status === 403) {
+                error('Access denied');
+            } else {
+                error('Failed to save project');
+            }
+            throw err;
         }
     };
 

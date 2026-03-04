@@ -9,6 +9,7 @@ import {
     Users,
     ListTodo,
     BarChart3,
+
     Calendar,
     Eye,
     EyeOff,
@@ -26,7 +27,8 @@ import {
     List as ListIcon,
     Code,
     CheckSquare,
-    Palette
+    Palette,
+    FileText
 } from 'lucide-react';
 import { cn, getInitials } from '@/lib/utils';
 import { projectsApi, Project } from '@/lib/api/endpoints/projects';
@@ -71,6 +73,8 @@ import { ProjectSprints } from '@/components/projects/ProjectSprints';
 
 import { ProjectOverview } from '@/components/projects/ProjectOverview';
 import { ProjectFeedback } from '@/components/projects/ProjectFeedback';
+import { ProjectFileBrowser } from '@/components/projects/ProjectFileBrowser';
+import axios from 'axios';
 
 export default function ProjectDetailsPage() {
     const params = useParams();
@@ -84,12 +88,20 @@ export default function ProjectDetailsPage() {
     const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const [activeTab, setActiveTab] = useState<'overview' | 'backlog' | 'epics' | 'features' | 'board' | 'issues' | 'team' | 'settings' | 'sprints' | 'feedback'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'backlog' | 'epics' | 'features' | 'board' | 'issues' | 'files' | 'team' | 'settings' | 'sprints' | 'feedback'>('overview');
     const [settingsForm, setSettingsForm] = useState({
         name: '',
         description: ''
     });
     const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+    const showProjectActionError = (err: unknown, fallback: string) => {
+        if (axios.isAxiosError(err) && err.response?.status === 403) {
+            error('Access denied');
+            return;
+        }
+        error(fallback);
+    };
 
     useEffect(() => {
         if (project) {
@@ -148,7 +160,8 @@ export default function ProjectDetailsPage() {
             setIsEditModalOpen(false);
         } catch (err) {
             console.error('Failed to update project:', err);
-            error('Failed to update project');
+            showProjectActionError(err, 'Failed to update project');
+            throw err;
         }
     };
 
@@ -163,7 +176,8 @@ export default function ProjectDetailsPage() {
             setIsAddMemberModalOpen(false);
         } catch (err) {
             console.error('Failed to add members:', err);
-            error('Failed to add members');
+            showProjectActionError(err, 'Failed to add members');
+            throw err;
         }
     };
 
@@ -181,9 +195,9 @@ export default function ProjectDetailsPage() {
             await projectsApi.update(project.id, settingsForm);
             success('Project settings updated successfully');
             fetchProject();
-        } catch (error) {
-            console.error('Failed to update project settings:', error);
-            // toast.error('Failed to update project settings');
+        } catch (err) {
+            console.error('Failed to update project settings:', err);
+            showProjectActionError(err, 'Failed to update project settings');
         } finally {
             setIsSavingSettings(false);
         }
@@ -204,6 +218,7 @@ export default function ProjectDetailsPage() {
                 { id: 'features', label: 'Features', icon: Book },
             ] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'files', label: 'Files', icon: FileText },
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'team', label: 'Team', icon: Users },
         ];
@@ -217,6 +232,7 @@ export default function ProjectDetailsPage() {
             ] : []),
             ...(project.usesSprints ? [{ id: 'sprints', label: 'Sprints', icon: Calendar }] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'files', label: 'Files', icon: FileText },
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'team', label: 'Team', icon: Users },
         ];
@@ -228,7 +244,8 @@ export default function ProjectDetailsPage() {
                 { id: 'epics', label: 'Epics', icon: Layers },
                 { id: 'features', label: 'Features', icon: Book },
             ] : []),
-            { id: 'sprints', label: 'Progress', icon: BarChart },
+            { id: 'sprints', label: 'Progress', icon: BarChart3 },
+            { id: 'files', label: 'Files', icon: FileText },
             { id: 'feedback', label: 'Feedback', icon: ListTodo },
         ];
     } else if (role === 'PROJECT_MANAGER') {
@@ -241,6 +258,7 @@ export default function ProjectDetailsPage() {
             ] : []),
             ...(project.usesSprints ? [{ id: 'sprints', label: 'Sprints', icon: Calendar }] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'files', label: 'Files', icon: FileText },
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'team', label: 'Team', icon: Users },
         ];
@@ -249,6 +267,7 @@ export default function ProjectDetailsPage() {
         tabs = [
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'files', label: 'Files', icon: FileText },
         ];
     }
 
@@ -368,6 +387,14 @@ export default function ProjectDetailsPage() {
                 {
                     activeTab === 'issues' && (
                         <ProjectIssues projectId={project.id} initialView="list" hideViewToggle={true} />
+                    )
+                }
+
+                {
+                    activeTab === 'files' && (
+                        <div className="p-4 md:p-6">
+                            <ProjectFileBrowser projectId={project.id} />
+                        </div>
                     )
                 }
 

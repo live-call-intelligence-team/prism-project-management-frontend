@@ -11,6 +11,9 @@ import { Project } from '@/lib/api/endpoints/projects';
 import { usersApi, User } from '@/lib/api/endpoints/users';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { useAuthStore } from '@/lib/store/authStore';
+import { useToast } from '@/components/ui/Toast';
+import axios from 'axios';
 
 const projectSchema = z.object({
     name: z.string().min(2, 'Project name must be at least 2 characters'),
@@ -39,6 +42,9 @@ interface ProjectModalProps {
 }
 
 export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: ProjectModalProps) {
+    const currentUser = useAuthStore(state => state.user);
+    const currentOrgId = currentUser?.orgId;
+    const { error: toastError } = useToast();
     const isEditing = !!initialData;
     const [isLoading, setIsLoading] = useState(false);
     const [scrumMasters, setScrumMasters] = useState<User[]>([]);
@@ -96,11 +102,16 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                 });
             }
         }
-    }, [isOpen, initialData, reset]);
+    }, [isOpen, initialData, reset, currentOrgId]);
 
     const fetchUsers = async () => {
         setLoadingUsers(true);
         try {
+            const filterByOrg = (users: User[] = []) => {
+                if (!currentOrgId) return [];
+                return users.filter((user) => user.orgId === currentOrgId);
+            };
+
             // Fetch potential Scrum Masters and Employees
             // For now fetching all and filtering in memory or separate calls
             // Ideally backend filter: roles=['SCRUM_MASTER', 'ADMIN'] for leads etc.
@@ -111,20 +122,26 @@ export function ProjectModal({ isOpen, onClose, onSubmit, initialData }: Project
                 usersApi.getAll({ role: 'EMPLOYEE', limit: 100 }),
                 usersApi.getAll({ role: 'CLIENT', limit: 100 })
             ]);
-            setScrumMasters(smData.users || []);
-            setProjectManagers(pmData.users || []);
-            setEmployees(empData.users || []);
-            setClients(clientData.users || []);
+            setScrumMasters(filterByOrg(smData.users || []));
+            setProjectManagers(filterByOrg(pmData.users || []));
+            setEmployees(filterByOrg(empData.users || []));
+            setClients(filterByOrg(clientData.users || []));
 
             // If we didn't find specific roles, maybe just fetch all users
             if ((!smData.users || smData.users.length === 0) && (!empData.users || empData.users.length === 0)) {
                 const allUsers = await usersApi.getAll({ limit: 200 });
-                setScrumMasters(allUsers.users || []);
-                setEmployees(allUsers.users || []);
+                const sameOrgUsers = filterByOrg(allUsers.users || []);
+                setScrumMasters(sameOrgUsers);
+                setEmployees(sameOrgUsers);
             }
 
         } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 403) {
+                toastError('Access denied');
+                return;
+            }
             console.error('Failed to fetch users', error);
+            toastError('Failed to fetch users');
         } finally {
             setLoadingUsers(false);
         }

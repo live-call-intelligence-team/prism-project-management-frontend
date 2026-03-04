@@ -59,6 +59,44 @@ export interface ProjectsResponse {
     };
 }
 
+export interface ProjectFile {
+    id: string;
+    projectId: string;
+    userId: string;
+    filename: string;
+    originalName: string;
+    mimetype: string;
+    size: number;
+    fileUrl: string;
+    createdAt: string;
+    user?: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role?: string;
+    };
+    uploader?: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        role?: string;
+    };
+}
+
+export interface Milestone {
+    id: string;
+    projectId: string;
+    name: string;
+    description?: string;
+    dueDate?: string;
+    status: 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED' | 'DELAYED';
+    tasksTotal: number;
+    tasksCompleted: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export const projectsApi = {
     // Get all projects
     getAll: async (params?: { page?: number; limit?: number; search?: string; status?: string }) => {
@@ -126,16 +164,41 @@ export const projectsApi = {
         return response.data;
     },
 
-    // Upload attachment
-    uploadAttachment: async (id: string, file: File) => {
+    // Project files (canonical)
+    getProjectFiles: async (projectId: string, params?: { page?: number; limit?: number }) => {
+        const response = await apiClient.get<{ success: boolean; data: { files: ProjectFile[]; pagination: any } }>(`/projects/${projectId}/files`, { params });
+        return {
+            files: response.data?.data?.files || [],
+            pagination: response.data?.data?.pagination,
+        };
+    },
+
+    uploadProjectFile: async (projectId: string, file: File) => {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await apiClient.post<{ success: boolean; data: { attachment: any } }>(`/projects/${id}/attachments`, formData, {
+        const response = await apiClient.post<{ success: boolean; data: { file: ProjectFile } }>(`/projects/${projectId}/files`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-        return response.data.data.attachment;
+        return response.data?.data?.file;
+    },
+
+    downloadProjectFile: async (projectId: string, fileId: string) => {
+        const response = await apiClient.get<Blob>(`/projects/${projectId}/files/${fileId}/download`, {
+            responseType: 'blob'
+        });
+        return response.data;
+    },
+
+    deleteProjectFile: async (projectId: string, fileId: string) => {
+        const response = await apiClient.delete<{ success: boolean; message?: string }>(`/projects/${projectId}/files/${fileId}`);
+        return response.data;
+    },
+
+    // Backward-compatible frontend alias (now uses canonical /files route)
+    uploadAttachment: async (id: string, file: File) => {
+        return projectsApi.uploadProjectFile(id, file);
     },
 
     // Client-specific endpoints
@@ -149,9 +212,30 @@ export const projectsApi = {
         return response.data.data;
     },
 
-    getClientProjectMilestones: async (id: string) => {
-        const response = await apiClient.get<{ success: boolean; data: { milestones: any[] } }>(`/client/projects/${id}/milestones`);
+    // Milestones (canonical)
+    getProjectMilestones: async (projectId: string) => {
+        const response = await apiClient.get<{ success: boolean; data: { milestones: Milestone[] } }>(`/milestones/projects/${projectId}/milestones`);
         return response.data.data.milestones;
+    },
+
+    createProjectMilestone: async (projectId: string, data: Partial<Milestone> & { name: string }) => {
+        const response = await apiClient.post<{ success: boolean; data: { milestone: Milestone } }>(`/milestones/projects/${projectId}/milestones`, data);
+        return response.data.data.milestone;
+    },
+
+    updateProjectMilestone: async (milestoneId: string, data: Partial<Milestone>) => {
+        const response = await apiClient.patch<{ success: boolean; data: { milestone: Milestone } }>(`/milestones/${milestoneId}`, data);
+        return response.data.data.milestone;
+    },
+
+    deleteProjectMilestone: async (milestoneId: string) => {
+        const response = await apiClient.delete<{ success: boolean; message?: string }>(`/milestones/${milestoneId}`);
+        return response.data;
+    },
+
+    // Backward-compatible frontend alias (now uses canonical /milestones route)
+    getClientProjectMilestones: async (id: string) => {
+        return projectsApi.getProjectMilestones(id);
     },
 
     getClientProjectActivity: async (id: string, limit?: number) => {

@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { sprintsApi } from '@/lib/api/sprints';
-import { issuesApi } from '@/lib/api/issues';
-import { Sprint } from '@/types';
+import { sprintsApi, Sprint } from '@/lib/api/endpoints/sprints';
+import { issuesApi } from '@/lib/api/endpoints/issues';
 import { Loader2, X, ArrowRight } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 
@@ -29,9 +28,9 @@ export function MoveToSprintModal({ isOpen, onClose, projectId, issueId, current
 
     const loadSprints = async () => {
         try {
-            const data = await sprintsApi.getByProject(projectId);
+            const sprints = await sprintsApi.getProjectSprints(projectId);
             // Filter only planned or active sprints
-            const available = data.data.sprints.filter((s: Sprint) =>
+            const available = sprints.filter((s: Sprint) =>
                 (s.status === 'PLANNED' || s.status === 'ACTIVE') && s.id !== currentSprintId
             );
             setSprints(available);

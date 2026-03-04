@@ -5,8 +5,8 @@ export function getDashboardRoute(role: UserRole): string {
         ADMIN: '/admin/dashboard',
         SCRUM_MASTER: '/scrum/dashboard',
         EMPLOYEE: '/employee/dashboard',
-        CLIENT: '/client/portal',
-        PROJECT_MANAGER: '/scrum/dashboard', // Assuming PM shares scrum view or has their own
+        CLIENT: '/client/dashboard',
+        PROJECT_MANAGER: '/pm/dashboard',
     };
     return routes[role] || '/employee/dashboard';
 }

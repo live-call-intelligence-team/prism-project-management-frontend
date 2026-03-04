@@ -4,8 +4,11 @@ import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { X, UserPlus, Search } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import { usersApi } from '@/lib/api/endpoints/users';
+import { usersApi, User } from '@/lib/api/endpoints/users';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/lib/store/authStore';
+import { useToast } from '@/components/ui/Toast';
+import axios from 'axios';
 // import { useToast } from '@/components/ui/Toast'; // Unused in this file if errors handled by parent
 
 interface AddMemberModalProps {
@@ -16,10 +19,13 @@ interface AddMemberModalProps {
 }
 
 export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemberModalProps) {
+    const currentUser = useAuthStore(state => state.user);
+    const currentOrgId = currentUser?.orgId;
+    const { error: toastError } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [users, setUsers] = useState<any[]>([]);
-    const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
     const [selectedRole, setSelectedRole] = useState('DEVELOPER'); // Default
 
     // Debounce search
@@ -28,9 +34,18 @@ export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemb
             if (searchTerm.length >= 2) {
                 try {
                     const data = await usersApi.getAll({ search: searchTerm, limit: 10 });
-                    setUsers(data.users);
+                    const sameOrgUsers = (data.users || []).filter((user) => {
+                        if (!currentOrgId) return false;
+                        return user.orgId === currentOrgId;
+                    });
+                    setUsers(sameOrgUsers);
                 } catch (e) {
+                    if (axios.isAxiosError(e) && e.response?.status === 403) {
+                        toastError('Access denied');
+                        return;
+                    }
                     console.error(e);
+                    toastError('Failed to search users');
                 }
             } else {
                 setUsers([]);
@@ -38,9 +53,9 @@ export function AddMemberModal({ isOpen, onClose, onSubmit, projectId }: AddMemb
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [searchTerm]);
+    }, [searchTerm, currentOrgId, toastError]);
 
-    const toggleUser = (user: any) => {
+    const toggleUser = (user: User) => {
         if (selectedUsers.find(u => u.id === user.id)) {
             setSelectedUsers(selectedUsers.filter(u => u.id !== user.id));
         } else {

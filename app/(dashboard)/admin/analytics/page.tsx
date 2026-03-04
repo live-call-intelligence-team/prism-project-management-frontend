@@ -22,8 +22,11 @@ import {
     AreaChart,
     Area
 } from 'recharts';
+import { useAuthStore } from '@/lib/store/authStore';
 
 export default function AdminAnalyticsPage() {
+    const user = useAuthStore(state => state.user);
+    const isAdmin = user?.role === 'ADMIN';
     const [loading, setLoading] = useState(true);
     const [systemHealth, setSystemHealth] = useState<any>(null);
     const [dbStats, setDbStats] = useState<any>(null);
@@ -36,6 +39,11 @@ export default function AdminAnalyticsPage() {
     const { success, error: toastError } = useToast();
 
     useEffect(() => {
+        if (!isAdmin) {
+            setLoading(false);
+            return;
+        }
+
         const fetchData = async () => {
             try {
                 const [health, db, growth, resolution] = await Promise.all([
@@ -58,7 +66,24 @@ export default function AdminAnalyticsPage() {
         };
 
         fetchData();
-    }, []);
+    }, [isAdmin, toastError]);
+
+    if (!isAdmin) {
+        return (
+            <Container>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Forbidden</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            System and database analytics are available to ADMIN users only.
+                        </p>
+                    </CardContent>
+                </Card>
+            </Container>
+        );
+    }
 
     const handleExport = async () => {
         setIsExporting(true);

@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { issuesApi } from '@/lib/api/issues';
-import { Issue } from '@/types';
+import { issuesApi, Issue } from '@/lib/api/endpoints/issues';
 import { Loader2, ChevronRight, ChevronDown, Plus } from 'lucide-react';
 import { CreateStoryModal } from '@/components/issues/CreateStoryModal';
 import { MoveToSprintModal } from '@/components/sprints/MoveToSprintModal';
@@ -37,9 +36,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
     const loadData = async () => {
         try {
             setIsLoading(true);
-            const data = await issuesApi.getHierarchy(projectId);
-            setEpics(data.data.epics);
-            setUnassigned(data.data.unassigned);
+            const hierarchy = await issuesApi.getHierarchy(projectId);
+            setEpics(hierarchy.epics || []);
+            setUnassigned(hierarchy.unassigned || []);
         } catch (error) {
             console.error('Failed to load backlog', error);
         } finally {

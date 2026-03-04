@@ -1,21 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Play, Pause, Square, Clock } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import Container from '@/components/ui/Container';
 import Button from '@/components/ui/Button';
 import { mockTimeEntries, getTotalHoursToday, getTotalHoursThisWeek, getTotalHoursThisMonth } from '@/lib/data/mockTimeEntries';
 import { cn } from '@/lib/utils';
+import { timeApi } from '@/lib/api/endpoints/time';
 
 export default function TimeTrackingPage() {
     const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [elapsedTime, setElapsedTime] = useState(0); // seconds
+    const [summaryHours, setSummaryHours] = useState({
+        daily: getTotalHoursToday(),
+        weekly: getTotalHoursThisWeek(),
+        monthly: getTotalHoursThisMonth(),
+    });
+    const [loadingSummary, setLoadingSummary] = useState(false);
 
-    const hoursToday = getTotalHoursToday();
-    const hoursWeek = getTotalHoursThisWeek();
-    const hoursMonth = getTotalHoursThisMonth();
+    useEffect(() => {
+        const fetchSummary = async () => {
+            try {
+                setLoadingSummary(true);
+                const [daily, weekly, monthly] = await Promise.all([
+                    timeApi.getSummary('daily'),
+                    timeApi.getSummary('weekly'),
+                    timeApi.getSummary('monthly'),
+                ]);
+
+                setSummaryHours({
+                    daily: daily.totalHours,
+                    weekly: weekly.totalHours,
+                    monthly: monthly.totalHours,
+                });
+            } catch (error) {
+                // Fallback to local mock summary if API call fails in local development.
+                console.error('Failed to load time summary', error);
+            } finally {
+                setLoadingSummary(false);
+            }
+        };
+
+        fetchSummary();
+    }, []);
 
     const formatTime = (seconds: number) => {
         const hrs = Math.floor(seconds / 3600);
@@ -130,7 +159,9 @@ export default function TimeTrackingPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400">Today</p>
-                                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{hoursToday.toFixed(1)}h</p>
+                                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                                        {summaryHours.daily.toFixed(1)}h
+                                    </p>
                                 </div>
                                 <Clock className="w-8 h-8 text-green-600 dark:text-green-400" />
                             </div>
@@ -142,7 +173,9 @@ export default function TimeTrackingPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400">This Week</p>
-                                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{hoursWeek.toFixed(0)}h</p>
+                                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                                        {summaryHours.weekly.toFixed(1)}h
+                                    </p>
                                 </div>
                                 <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                             </div>
@@ -154,13 +187,19 @@ export default function TimeTrackingPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400">This Month</p>
-                                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{hoursMonth.toFixed(0)}h</p>
+                                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                                        {summaryHours.monthly.toFixed(1)}h
+                                    </p>
                                 </div>
                                 <Clock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                             </div>
                         </CardContent>
                     </Card>
                 </div>
+
+                {loadingSummary && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Refreshing summary...</p>
+                )}
 
                 {/* Time Log */}
                 <Card>

@@ -27,12 +27,16 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import Container from '@/components/ui/Container';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { dashboardApi, DashboardStats } from '@/lib/api/endpoints';
+import { analyticsApi, canAccessClientStats, getClientStatsLabel } from '@/lib/api/endpoints/analytics';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/lib/store/authStore';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export default function AnalyticsPage() {
+    const role = useAuthStore((state) => state.user?.role?.toUpperCase() || 'EMPLOYEE');
     const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [clientStats, setClientStats] = useState<Record<string, unknown> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +46,17 @@ export default function AnalyticsPage() {
                 setLoading(true);
                 const data = await dashboardApi.getStats();
                 setStats(data);
+
+                if (canAccessClientStats(role)) {
+                    try {
+                        const scopedStats = await analyticsApi.getClientStats(role);
+                        setClientStats(scopedStats || null);
+                    } catch (clientStatsError) {
+                        console.error('Failed to load client-scoped stats:', clientStatsError);
+                    }
+                } else {
+                    setClientStats(null);
+                }
             } catch (err) {
                 console.error('Error fetching analytics:', err);
                 setError('Failed to load analytics data');
@@ -51,7 +66,7 @@ export default function AnalyticsPage() {
         };
 
         fetchStats();
-    }, []);
+    }, [role]);
 
     if (loading) {
         return (
@@ -90,6 +105,10 @@ export default function AnalyticsPage() {
         name: item.priority,
         value: parseInt(item.count)
     }));
+
+    const clientStatEntries = Object.entries(clientStats || {})
+        .filter(([, value]) => typeof value === 'number')
+        .slice(0, 4);
 
     return (
         <Container size="2xl">
@@ -160,6 +179,33 @@ export default function AnalyticsPage() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {clientStats && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{getClientStatsLabel(role)}</CardTitle>
+                            <CardDescription>Scoped analytics for client-linked projects.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {clientStatEntries.length > 0 ? (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {clientStatEntries.map(([key, value]) => (
+                                        <div key={key} className="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                                            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                                {key.replace(/([A-Z])/g, ' $1').trim()}
+                                            </p>
+                                            <p className="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{String(value)}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    Client-scoped analytics loaded.
+                                </p>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

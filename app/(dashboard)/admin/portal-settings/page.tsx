@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { Save, Settings, Eye, EyeOff, Mail, Shield } from 'lucide-react';
+import { Save, Settings, Eye, Mail, Shield } from 'lucide-react';
+import apiClient from '@/lib/api/client';
 
 interface PortalSettings {
     clientPortalEnabled: boolean;
@@ -26,6 +27,7 @@ export default function ClientPortalSettingsPage() {
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     useEffect(() => {
         fetchSettings();
@@ -33,14 +35,17 @@ export default function ClientPortalSettingsPage() {
 
     const fetchSettings = async () => {
         try {
-            const response = await fetch('/api/v1/admin/portal-settings');
-            const data = await response.json();
-
-            if (data.success) {
-                setSettings(data.data.settings);
+            const response = await apiClient.get<{ success: boolean; data?: { settings?: PortalSettings } }>('/admin/portal-settings');
+            const fetched = response.data?.data?.settings;
+            if (fetched) {
+                setSettings(fetched);
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to fetch settings', error);
+            setStatusMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Failed to fetch settings',
+            });
         } finally {
             setLoading(false);
         }
@@ -48,32 +53,35 @@ export default function ClientPortalSettingsPage() {
 
     const handleSave = async () => {
         setSaving(true);
+        setStatusMessage(null);
 
         try {
-            const response = await fetch('/api/v1/admin/portal-settings', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(settings),
-            });
+            const response = await apiClient.put<{ success: boolean; message?: string; data?: { settings?: PortalSettings } }>(
+                '/admin/portal-settings',
+                settings
+            );
 
-            const data = await response.json();
-
-            if (data.success) {
-                alert('Settings saved successfully!');
-            } else {
-                alert('Failed to save settings: ' + data.message);
+            const persisted = response.data?.data?.settings;
+            if (persisted) {
+                setSettings(persisted);
             }
-        } catch (error: any) {
+
+            setStatusMessage({
+                type: 'success',
+                text: response.data?.message || 'Settings saved successfully',
+            });
+        } catch (error: unknown) {
             console.error('Failed to save settings', error);
-            alert('Failed to save settings');
+            setStatusMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Failed to save settings',
+            });
         } finally {
             setSaving(false);
         }
     };
 
-    const updateSetting = (key: keyof PortalSettings, value: any) => {
+    const updateSetting = <K extends keyof PortalSettings>(key: K, value: PortalSettings[K]) => {
         setSettings(prev => ({ ...prev, [key]: value }));
     };
 
@@ -103,6 +111,17 @@ export default function ClientPortalSettingsPage() {
                     {saving ? 'Saving...' : 'Save Changes'}
                 </Button>
             </div>
+
+            {statusMessage && (
+                <div
+                    className={`rounded-lg border px-4 py-3 text-sm ${statusMessage.type === 'success'
+                        ? 'border-green-300 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300'
+                        : 'border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300'
+                        }`}
+                >
+                    {statusMessage.text}
+                </div>
+            )}
 
             {/* General Settings */}
             <Card>
@@ -213,7 +232,7 @@ export default function ClientPortalSettingsPage() {
                                     min="1"
                                     max="100"
                                     value={settings.maxFileUploadSizeMB}
-                                    onChange={(e) => updateSetting('maxFileUploadSizeMB', parseInt(e.target.value))}
+                                    onChange={(e) => updateSetting('maxFileUploadSizeMB', Number.parseInt(e.target.value, 10) || 1)}
                                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 />
                             </label>

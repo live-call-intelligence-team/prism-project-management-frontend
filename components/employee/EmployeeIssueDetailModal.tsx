@@ -395,7 +395,7 @@ export function EmployeeIssueDetailModal({ issueId, isOpen, onClose, onUpdate }:
                                                 onClick={async () => {
                                                     try {
                                                         const updated = await issuesApi.update(issue.id, { description: descriptionText });
-                                                        setIssue(updated);
+                                                        if (updated) setIssue(updated);
                                                         setIsEditingDescription(false);
                                                         onUpdate?.();
                                                     } catch (e) {
@@ -768,7 +768,7 @@ export function EmployeeIssueDetailModal({ issueId, isOpen, onClose, onUpdate }:
                                                     try {
                                                         const date = e.target.value; // YYYY-MM-DD
                                                         const updated = await issuesApi.update(issue.id, { dueDate: date });
-                                                        setIssue(updated);
+                                                        if (updated) setIssue(updated);
                                                         onUpdate?.();
                                                     } catch (err) {
                                                         console.error('Failed to update due date', err);
@@ -803,7 +803,7 @@ export function EmployeeIssueDetailModal({ issueId, isOpen, onClose, onUpdate }:
                                                         // Note: We might want to track 'original' value to avoid no-op saves, 
                                                         // but for now we ensure the input works.
                                                         const updated = await issuesApi.update(issue.id, { fixVersion: issue.fixVersion });
-                                                        setIssue(updated);
+                                                        if (updated) setIssue(updated);
                                                     } catch (err) {
                                                         console.error('Failed to update fix version', err);
                                                     }
@@ -824,7 +824,7 @@ export function EmployeeIssueDetailModal({ issueId, isOpen, onClose, onUpdate }:
                                                     onClick={async () => {
                                                         const newLabels = issue.labels?.filter(l => l !== label);
                                                         const updated = await issuesApi.update(issue.id, { labels: newLabels });
-                                                        setIssue(updated);
+                                                        if (updated) setIssue(updated);
                                                     }}
                                                     className="ml-1 text-gray-400 hover:text-gray-600"
                                                 >
@@ -845,7 +845,7 @@ export function EmployeeIssueDetailModal({ issueId, isOpen, onClose, onUpdate }:
                                                         const current = issue.labels || [];
                                                         if (!current.includes(newLabel.trim())) {
                                                             const updated = await issuesApi.update(issue.id, { labels: [...current, newLabel.trim()] });
-                                                            setIssue(updated);
+                                                            if (updated) setIssue(updated);
                                                         }
                                                         setNewLabel('');
                                                     }
