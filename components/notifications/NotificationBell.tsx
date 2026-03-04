@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { Bell, Check, Trash2, X } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
+import { notificationsApi } from '@/lib/api/endpoints/notifications';
 
 interface Notification {
     id: string;
@@ -15,7 +15,7 @@ interface Notification {
     message: string;
     isRead: boolean;
     createdAt: string;
-    data?: Record<string, any>;
+    data?: Record<string, unknown>;
 }
 
 export function NotificationBell() {
@@ -39,13 +39,9 @@ export function NotificationBell() {
         if (!silent) setLoading(true);
 
         try {
-            const response = await fetch('/api/v1/notifications?limit=10');
-            const data = await response.json();
-
-            if (data.success) {
-                setNotifications(data.data.notifications);
-                setUnreadCount(data.data.unreadCount);
-            }
+            const data = await notificationsApi.getMyNotifications({ limit: 10 });
+            setNotifications(data.notifications);
+            setUnreadCount(data.unreadCount);
         } catch (error) {
             console.error('Failed to fetch notifications', error);
         } finally {
@@ -55,14 +51,15 @@ export function NotificationBell() {
 
     const markAsRead = async (id: string) => {
         try {
-            await fetch(`/api/v1/notifications/${id}/read`, {
-                method: 'PATCH',
-            });
+            await notificationsApi.markAsRead(id);
 
-            setNotifications(prev =>
-                prev.map(n => n.id === id ? { ...n, isRead: true } : n)
-            );
-            setUnreadCount(prev => Math.max(0, prev - 1));
+            setNotifications(prev => {
+                const wasUnread = prev.find(n => n.id === id && !n.isRead);
+                if (wasUnread) {
+                    setUnreadCount(count => Math.max(0, count - 1));
+                }
+                return prev.map(n => n.id === id ? { ...n, isRead: true } : n);
+            });
         } catch (error) {
             console.error('Failed to mark as read', error);
         }
@@ -70,9 +67,7 @@ export function NotificationBell() {
 
     const markAllAsRead = async () => {
         try {
-            await fetch('/api/v1/notifications/read-all', {
-                method: 'PATCH',
-            });
+            await notificationsApi.markAllAsRead();
 
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
             setUnreadCount(0);
@@ -83,20 +78,21 @@ export function NotificationBell() {
 
     const deleteNotification = async (id: string) => {
         try {
-            await fetch(`/api/v1/notifications/${id}`, {
-                method: 'DELETE',
-            });
+            await notificationsApi.delete(id);
 
-            setNotifications(prev => prev.filter(n => n.id !== id));
-            if (notifications.find(n => n.id === id && !n.isRead)) {
-                setUnreadCount(prev => Math.max(0, prev - 1));
-            }
+            setNotifications(prev => {
+                const wasUnread = prev.find(n => n.id === id && !n.isRead);
+                if (wasUnread) {
+                    setUnreadCount(count => Math.max(0, count - 1));
+                }
+                return prev.filter(n => n.id !== id);
+            });
         } catch (error) {
             console.error('Failed to delete notification', error);
         }
     };
 
-    const getNotificationIcon = (type: string) => {
+    const getNotificationIcon = (_type: string) => {
         // Return different icons based on notification type
         return '🔔';
     };

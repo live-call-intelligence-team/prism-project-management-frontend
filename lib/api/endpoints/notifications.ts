@@ -29,9 +29,21 @@ export const notificationsApi = {
         return response.data.data;
     },
 
-    // Mark as read
-    markAsRead: async (id: string = 'all') => {
+    // Mark single notification as read
+    markAsRead: async (id: string) => {
         const response = await apiClient.put<{ success: boolean; message: string }>(`/notifications/${id}/read`);
+        return response.data;
+    },
+
+    // Bulk mark all notifications as read
+    markAllAsRead: async () => {
+        const response = await apiClient.put<{ success: boolean; message: string }>('/notifications/read-all');
+        return response.data;
+    },
+
+    // Delete a notification
+    delete: async (id: string) => {
+        const response = await apiClient.delete<{ success: boolean; message?: string }>(`/notifications/${id}`);
         return response.data;
     },
 };

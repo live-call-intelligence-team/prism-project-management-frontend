@@ -149,9 +149,14 @@ export function IssueModal({
                 success('Issue created');
             }
             onSubmit(result);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            error(initialData ? 'Failed to update issue' : 'Failed to create issue');
+            const message = err instanceof Error ? err.message : undefined;
+            if (message && /Use Epics module/i.test(message)) {
+                error('Use Epics module');
+            } else {
+                error(message || (initialData ? 'Failed to update issue' : 'Failed to create issue'));
+            }
         } finally {
             setIsLoading(false);
         }

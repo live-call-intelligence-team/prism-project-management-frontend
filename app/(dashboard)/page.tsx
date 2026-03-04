@@ -20,6 +20,9 @@ export default function DashboardRedirectPage() {
                 case 'ADMIN':
                     router.push('/admin/dashboard');
                     break;
+                case 'PROJECT_MANAGER':
+                    router.push('/pm/dashboard');
+                    break;
                 case 'EMPLOYEE':
                     router.push('/employee/dashboard');
                     break;
@@ -27,7 +30,7 @@ export default function DashboardRedirectPage() {
                     router.push('/scrum/dashboard');
                     break;
                 case 'CLIENT':
-                    router.push('/client/portal');
+                    router.push('/client/dashboard');
                     break;
                 default:
                     router.push('/login');

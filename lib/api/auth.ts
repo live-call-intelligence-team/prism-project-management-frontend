@@ -7,14 +7,6 @@ export interface LoginCredentials {
     rememberMe?: boolean;
 }
 
-export interface RegisterData {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    orgName: string;
-}
-
 export interface AuthResponse {
     success: boolean;
     data: {
@@ -28,11 +20,6 @@ export interface AuthResponse {
 export const authApi = {
     login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
         const response = await apiClient.post('/auth/login', credentials);
-        return response.data;
-    },
-
-    register: async (data: RegisterData): Promise<AuthResponse> => {
-        const response = await apiClient.post('/auth/register', data);
         return response.data;
     },
 

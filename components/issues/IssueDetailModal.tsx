@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Modal from '@/components/ui/Modal';
-import { issuesApi } from '@/lib/api/issues';
-import { Issue } from '@/types';
+import { issuesApi, Issue } from '@/lib/api/endpoints/issues';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { CreateSubtaskModal } from '@/components/issues/CreateSubtaskModal';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';

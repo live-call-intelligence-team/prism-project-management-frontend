@@ -10,6 +10,25 @@ interface PremiumLogoProps {
     variant?: 'icon' | 'full';
 }
 
+interface LogoParticleConfig {
+    id: number;
+    cx: number;
+    cy: number;
+    r: number;
+    duration: number;
+    delay: number;
+    driftY: number;
+    scalePeak: number;
+}
+
+const LOGO_PARTICLES: LogoParticleConfig[] = [
+    { id: 0, cx: 118, cy: 58, r: 1.8, duration: 2.2, delay: 0.1, driftY: -20, scalePeak: 1.5 },
+    { id: 1, cx: 64, cy: 136, r: 2.0, duration: 2.6, delay: 0.5, driftY: -18, scalePeak: 1.35 },
+    { id: 2, cx: 96, cy: 64, r: 1.5, duration: 2.4, delay: 0.9, driftY: -22, scalePeak: 1.45 },
+    { id: 3, cx: 143, cy: 126, r: 1.7, duration: 2.8, delay: 1.2, driftY: -19, scalePeak: 1.4 },
+    { id: 4, cx: 75, cy: 137, r: 2.2, duration: 2.5, delay: 1.6, driftY: -21, scalePeak: 1.55 },
+];
+
 export const PremiumLogo: React.FC<PremiumLogoProps> = ({
     className = '',
     size = 120,
@@ -141,23 +160,23 @@ export const PremiumLogo: React.FC<PremiumLogoProps> = ({
                 />
 
                 {/* Floating Particles around the logo */}
-                {[...Array(5)].map((_, i) => (
+                {LOGO_PARTICLES.map((particle) => (
                     <motion.circle
-                        key={i}
-                        cx={100 + (Math.random() * 100 - 50)}
-                        cy={100 + (Math.random() * 100 - 50)}
-                        r={Math.random() * 2 + 1}
+                        key={particle.id}
+                        cx={particle.cx}
+                        cy={particle.cy}
+                        r={particle.r}
                         fill={goldGradient[0]}
                         initial={{ opacity: 0 }}
                         animate={{
                             opacity: [0, 1, 0],
-                            y: [0, -20],
-                            scale: [0, 1.5, 0]
+                            y: [0, particle.driftY],
+                            scale: [0, particle.scalePeak, 0]
                         }}
                         transition={{
-                            duration: 2 + Math.random(),
+                            duration: particle.duration,
                             repeat: Infinity,
-                            delay: Math.random() * 2
+                            delay: particle.delay
                         }}
                     />
                 ))}

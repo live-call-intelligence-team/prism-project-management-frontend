@@ -33,13 +33,17 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const originalRequest = error.config;
+        const originalRequest = error.config || {};
 
         // Handle token refresh
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
+                if (typeof window === 'undefined') {
+                    throw error;
+                }
+
                 const refreshToken = localStorage.getItem('refreshToken');
                 if (refreshToken) {
                     const response = await axios.post(
@@ -50,6 +54,7 @@ apiClient.interceptors.response.use(
                     const { accessToken } = response.data.data;
                     localStorage.setItem('token', accessToken);
 
+                    originalRequest.headers = originalRequest.headers || {};
                     originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                     return apiClient(originalRequest);
                 } else {
@@ -58,11 +63,37 @@ apiClient.interceptors.response.use(
                 }
             } catch (refreshError) {
                 // Refresh failed or no refresh token, logout user
-                localStorage.removeItem('token');
-                localStorage.removeItem('refreshToken');
-                window.location.href = '/login';
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('refreshToken');
+                    window.location.href = '/login';
+                }
                 return Promise.reject(refreshError);
             }
+        }
+
+        const status = error.response?.status;
+        const serverMessage =
+            error.response?.data?.message ||
+            error.response?.data?.error ||
+            error.response?.data?.details;
+
+        if (status === 400 || status === 422) {
+            error.message = typeof serverMessage === 'string' && serverMessage.trim()
+                ? serverMessage
+                : 'Validation failed. Please review your input.';
+        } else if (status === 401) {
+            error.message = typeof serverMessage === 'string' && serverMessage.trim()
+                ? serverMessage
+                : 'Your session expired. Please sign in again.';
+        } else if (status === 403) {
+            error.message = typeof serverMessage === 'string' && serverMessage.trim()
+                ? serverMessage
+                : 'You do not have permission to perform this action.';
+        } else if (status === 404) {
+            error.message = typeof serverMessage === 'string' && serverMessage.trim()
+                ? serverMessage
+                : 'Requested resource was not found.';
         }
 
         if (error.code === 'ERR_NETWORK') {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { authApi, LoginCredentials, RegisterData } from '../api/auth';
+import { authApi, LoginCredentials } from '../api/auth';
 
 interface User {
     id: string;
@@ -17,7 +17,6 @@ interface AuthState {
     isLoading: boolean;
     error: string | null;
     login: (credentials: LoginCredentials) => Promise<void>;
-    register: (data: RegisterData) => Promise<void>;
     logout: () => void;
     setUser: (user: User | null) => void;
     clearError: () => void;
@@ -49,31 +48,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         } catch (error: any) {
             set({
                 error: error.response?.data?.message || 'Login failed',
-                isLoading: false,
-            });
-            throw error;
-        }
-    },
-
-    register: async (data) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await authApi.register(data);
-            const { user, accessToken, refreshToken } = response.data;
-
-            // Store tokens
-            localStorage.setItem('token', accessToken);
-            localStorage.setItem('refreshToken', refreshToken);
-
-            set({
-                user: user ? { ...user, role: user.role.toUpperCase() } : null,
-                token: accessToken,
-                isAuthenticated: true,
-                isLoading: false,
-            });
-        } catch (error: any) {
-            set({
-                error: error.response?.data?.message || 'Registration failed',
                 isLoading: false,
             });
             throw error;

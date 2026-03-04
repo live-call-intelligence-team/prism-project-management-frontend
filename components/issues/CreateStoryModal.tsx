@@ -1,11 +1,11 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, Loader2 } from 'lucide-react';
-import { issuesApi } from '@/lib/api/issues';
-import { Issue } from '@/types';
+import { issuesApi } from '@/lib/api/endpoints/issues';
+import { epicsApi, Epic } from '@/lib/api/endpoints/epics';
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required'),
@@ -27,7 +27,7 @@ interface CreateStoryModalProps {
 
 export function CreateStoryModal({ projectId, initialEpicId, isOpen, onClose, onSuccess }: CreateStoryModalProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const [epics, setEpics] = useState<Issue[]>([]);
+    const [epics, setEpics] = useState<Epic[]>([]);
 
     const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -40,6 +40,15 @@ export function CreateStoryModal({ projectId, initialEpicId, isOpen, onClose, on
         }
     });
 
+    const loadEpics = useCallback(async () => {
+        try {
+            const data = await epicsApi.getAll(projectId);
+            setEpics(data);
+        } catch (error) {
+            console.error('Failed to load epics', error);
+        }
+    }, [projectId]);
+
     useEffect(() => {
         if (isOpen) {
             if (initialEpicId) {
@@ -47,18 +56,7 @@ export function CreateStoryModal({ projectId, initialEpicId, isOpen, onClose, on
             }
             loadEpics();
         }
-    }, [isOpen, initialEpicId]);
-
-    const loadEpics = async () => {
-        try {
-            // Re-use hierarchy fetch to get Epics, or filters. 
-            // For efficiency, we might want a specific 'getEpics' endpoint but hierarchy works.
-            const data = await issuesApi.getHierarchy(projectId);
-            setEpics(data.data.epics);
-        } catch (error) {
-            console.error('Failed to load epics', error);
-        }
-    };
+    }, [isOpen, initialEpicId, setValue, loadEpics]);
 
     const onSubmit = async (data: FormData) => {
         try {
@@ -109,7 +107,7 @@ export function CreateStoryModal({ projectId, initialEpicId, isOpen, onClose, on
                             <option value="">Select Epic</option>
                             {epics.map(epic => (
                                 <option key={epic.id} value={epic.id}>
-                                    {epic.key} - {epic.title}
+                                    {epic.key} - {epic.name}
                                 </option>
                             ))}
                         </select>

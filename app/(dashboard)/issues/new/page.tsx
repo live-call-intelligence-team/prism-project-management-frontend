@@ -83,9 +83,10 @@ export default function NewIssuePage() {
 
             // Redirect to issues page
             router.push('/issues');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error creating issue:', err);
-            setError(err.response?.data?.error || 'Failed to create issue');
+            const message = err instanceof Error ? err.message : 'Failed to create issue';
+            setError(/Use Epics module/i.test(message) ? 'Use Epics module' : message);
         } finally {
             setLoading(false);
         }

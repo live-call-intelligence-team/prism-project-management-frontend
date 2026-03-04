@@ -49,7 +49,7 @@ export default function ClientDashboardPage() {
                     const allMilestones: any[] = [];
                     for (const project of projectsData.projects.slice(0, 4)) {
                         try {
-                            const milestones = await projectsApi.getClientProjectMilestones(project.id);
+                            const milestones = await projectsApi.getProjectMilestones(project.id);
                             allMilestones.push(...milestones.map((m: any) => ({ ...m, project })));
                         } catch (err) {
                             console.error('Error fetching milestones for project', project.id);
