@@ -29,7 +29,7 @@ export interface UsersResponse {
 
 export const usersApi = {
     // Get all users
-    getAll: async (params?: { page?: number; limit?: number; role?: string; search?: string; isActive?: string }) => {
+    getAll: async (params?: { page?: number; limit?: number; role?: string; search?: string; isActive?: string; sortBy?: string; sortDir?: string }) => {
         // Handle isActive boolean/string conversion if needed properly
         const response = await apiClient.get<{ success: boolean; data: UsersResponse }>('/users', { params });
         return response.data.data;

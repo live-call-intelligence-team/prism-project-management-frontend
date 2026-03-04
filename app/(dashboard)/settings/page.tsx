@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
     User,
     Bell,
@@ -18,10 +19,25 @@ import { cn } from '@/lib/utils';
 import { usersApi } from '@/lib/api/endpoints/users';
 import { toast } from 'react-hot-toast';
 
-export default function SettingsPage() {
+function SettingsContent() {
     const { user, setUser } = useAuthStore();
     const [activeTab, setActiveTab] = useState('profile');
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab && ['profile', 'notifications', 'appearance', 'security'].includes(tab)) {
+            setActiveTab(tab);
+        }
+    }, [searchParams]);
+
+    const handleTabChange = (tabId: string) => {
+        setActiveTab(tabId);
+        // Update URL without a full page reload or scrolling up
+        router.replace(`/settings?tab=${tabId}`, { scroll: false });
+    };
 
     // Profile Form State
     const [firstName, setFirstName] = useState('');
@@ -97,7 +113,7 @@ export default function SettingsPage() {
                             return (
                                 <button
                                     key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
+                                    onClick={() => handleTabChange(tab.id)}
                                     className={cn(
                                         "w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                                         activeTab === tab.id
@@ -305,5 +321,19 @@ export default function SettingsPage() {
                 </div>
             </div>
         </Container>
+    );
+}
+
+export default function SettingsPage() {
+    return (
+        <Suspense fallback={
+            <Container size="lg">
+                <div className="flex items-center justify-center h-64">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                </div>
+            </Container>
+        }>
+            <SettingsContent />
+        </Suspense>
     );
 }

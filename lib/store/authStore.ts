@@ -33,11 +33,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await authApi.login(credentials);
-            const { user, accessToken, refreshToken } = response.data;
-
-            // Store tokens
-            localStorage.setItem('token', accessToken);
-            localStorage.setItem('refreshToken', refreshToken);
+            // authApi.login returns AuthResponse which is { success: true, data: { user, accessToken, ... } }
+            const { user, accessToken } = response.data;
 
             set({
                 user: user ? { ...user, role: user.role.toUpperCase() } : null,
@@ -54,10 +51,28 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
     },
 
+    register: async (data: any) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await authApi.register(data);
+            const { user, accessToken } = response.data;
+
+            set({
+                user: user ? { ...user, role: user.role.toUpperCase() } : null,
+                token: accessToken,
+                isAuthenticated: true,
+                isLoading: false,
+            });
+        } catch (error: any) {
+            set({
+                error: error.response?.data?.message || 'Registration failed',
+                isLoading: false,
+            });
+            throw error;
+        }
+    },
     logout: () => {
         authApi.logout().catch(() => { });
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
         set({
             user: null,
             token: null,

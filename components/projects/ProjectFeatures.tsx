@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { featuresApi, Feature } from '@/lib/api/endpoints/features';
 import { epicsApi, Epic } from '@/lib/api/endpoints/epics'; // Import epicsApi
 import { CreateFeatureModal } from './CreateFeatureModal';
+import { EditFeatureModal } from './EditFeatureModal';
 import { FeatureCard } from './FeatureCard'; // Import FeatureCard
 import { Plus, Book, LayoutGrid, List as ListIcon, Layers } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -16,6 +17,8 @@ export function ProjectFeatures({ projectId }: { projectId: string }) {
     const [epics, setEpics] = useState<Epic[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
     const [viewMode, setViewMode] = useState<'list' | 'grouped' | 'board'>('list');
     const [epicFilter, setEpicFilter] = useState('');
 
@@ -45,6 +48,16 @@ export function ProjectFeatures({ projectId }: { projectId: string }) {
 
     const handleCreateFeature = async (data: any) => {
         await featuresApi.create({ ...data, projectId });
+        fetchFeatures();
+    };
+
+    const handleEditFeature = (feature: Feature) => {
+        setSelectedFeature(feature);
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateFeature = async (id: string, data: Partial<Feature>) => {
+        await featuresApi.update(id, data);
         fetchFeatures();
     };
 
@@ -154,7 +167,9 @@ export function ProjectFeatures({ projectId }: { projectId: string }) {
                                     key={feature.id}
                                     feature={feature}
                                     onDelete={handleDeleteFeature}
+                                    onEdit={handleEditFeature}
                                     canDelete={canCreate || false}
+                                    canEdit={canCreate || false}
                                 />
                             ))}
                         </div>
@@ -179,7 +194,9 @@ export function ProjectFeatures({ projectId }: { projectId: string }) {
                                                     key={feature.id}
                                                     feature={feature}
                                                     onDelete={handleDeleteFeature}
+                                                    onEdit={handleEditFeature}
                                                     canDelete={canCreate || false}
+                                                    canEdit={canCreate || false}
                                                 />
                                             ))}
                                         </div>
@@ -202,7 +219,9 @@ export function ProjectFeatures({ projectId }: { projectId: string }) {
                                                 key={feature.id}
                                                 feature={feature}
                                                 onDelete={handleDeleteFeature}
+                                                onEdit={handleEditFeature}
                                                 canDelete={canCreate || false}
+                                                canEdit={canCreate || false}
                                             />
                                         ))}
                                     </div>
@@ -230,7 +249,9 @@ export function ProjectFeatures({ projectId }: { projectId: string }) {
                                                         key={feature.id}
                                                         feature={feature}
                                                         onDelete={handleDeleteFeature}
+                                                        onEdit={handleEditFeature}
                                                         canDelete={canCreate || false}
+                                                        canEdit={canCreate || false}
                                                     />
                                                 ))}
                                                 {statusFeatures.length === 0 && (
@@ -253,6 +274,17 @@ export function ProjectFeatures({ projectId }: { projectId: string }) {
                 onClose={() => setIsCreateModalOpen(false)}
                 onSubmit={handleCreateFeature}
                 projectId={projectId}
+            />
+
+            <EditFeatureModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedFeature(null);
+                }}
+                onSubmit={handleUpdateFeature}
+                projectId={projectId}
+                feature={selectedFeature}
             />
         </div>
     );

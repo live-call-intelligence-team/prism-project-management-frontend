@@ -407,14 +407,14 @@ export function Header({ sidebarCollapsed = false, onMobileMenuClick }: HeaderPr
                                     <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                                 </div>
                                 <button
-                                    onClick={() => router.push('/settings/profile')}
+                                    onClick={() => router.push('/settings?tab=profile')}
                                     className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
                                 >
                                     <User className="w-4 h-4" />
                                     <span>Profile</span>
                                 </button>
                                 <button
-                                    onClick={() => router.push('/settings')}
+                                    onClick={() => router.push('/settings?tab=appearance')}
                                     className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
                                 >
                                     <Settings className="w-4 h-4" />

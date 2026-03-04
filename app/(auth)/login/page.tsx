@@ -10,15 +10,10 @@ import { ToastContainer, useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/lib/store/authStore';
 import { PremiumLogo } from '@/components/ui/PremiumLogo';
 import { MorphingBackground } from '@/components/ui/MorphingBackground';
+import apiClient from '@/lib/api/client';
 import axios from 'axios';
 
-const getApiUrl = () => {
-    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    if (url.endsWith('/api/v1')) return url;
-    return `${url}/api/v1`;
-};
-
-const API_URL = getApiUrl();
+// Using apiClient from lib/api/client.ts which has withCredentials: true
 
 export default function LoginPage() {
     const router = useRouter();
@@ -50,9 +45,7 @@ export default function LoginPage() {
         try {
             const isEmail = loginId.includes('@');
             const payload = isEmail ? { email: loginId, password } : { username: loginId, password };
-            const response = await axios.post(`${API_URL}/auth/login`, payload, {
-                timeout: 12000,
-            });
+            const response = await apiClient.post('/auth/login', payload);
 
             if (response.data?.data?.mfaRequired) {
                 const msg = response.data?.message || 'MFA token required for this account.';

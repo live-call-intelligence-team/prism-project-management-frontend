@@ -22,6 +22,10 @@ export default function UserManagementPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState<string>('ALL');
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+    const [sortBy, setSortBy] = useState<string>('createdAt');
+    const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+    const [page, setPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
     const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
 
     // Modals state
@@ -36,17 +40,22 @@ export default function UserManagementPage() {
             const response = await usersApi.getAll({
                 search: searchQuery,
                 role: roleFilter !== 'ALL' ? roleFilter : undefined,
-                isActive: statusFilter !== 'all' ? (statusFilter === 'active' ? 'true' : 'false') : undefined
+                isActive: statusFilter !== 'all' ? (statusFilter === 'active' ? 'true' : 'false') : undefined,
+                sortBy: sortBy,
+                sortDir: sortDir,
+                page: page,
+                limit: 10
             });
             // usersApi.getAll returns data.data (UsersResponse) which has users array
             setUsers(response.users);
+            setTotalPages(response.pagination.totalPages || 1);
         } catch (err: any) {
             console.error('Failed to fetch users:', err);
             showError('Error', 'Failed to fetch users');
         } finally {
             setIsLoading(false);
         }
-    }, [searchQuery, roleFilter, statusFilter, showError]);
+    }, [searchQuery, roleFilter, statusFilter, sortBy, sortDir, page, showError]);
 
     useEffect(() => {
         // Debounce search
@@ -55,6 +64,11 @@ export default function UserManagementPage() {
         }, 300);
         return () => clearTimeout(timer);
     }, [fetchUsers]);
+
+    // Reset to page 1 when filters change (but not when page changes)
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, roleFilter, statusFilter, sortBy, sortDir]);
 
     const handleDeleteUser = async (userId: string) => {
         if (!confirm('Are you sure you want to delete this user?')) return;
@@ -136,6 +150,27 @@ export default function UserManagementPage() {
                                     leftIcon={<Search className="w-5 h-5" />}
                                 />
                             </div>
+                            <select
+                                value={sortBy}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (value.includes('-')) {
+                                        const [sort, dir] = value.split('-');
+                                        setSortBy(sort);
+                                        setSortDir(dir as 'asc' | 'desc');
+                                    } else {
+                                        setSortBy(value);
+                                        setSortDir('asc');
+                                    }
+                                }}
+                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            >
+                                <option value="createdAt-desc">Newest First</option>
+                                <option value="createdAt-asc">Oldest First</option>
+                                <option value="name-asc">Name (A-Z)</option>
+                                <option value="name-desc">Name (Z-A)</option>
+                                <option value="role-asc">Role</option>
+                            </select>
                             <select
                                 value={roleFilter}
                                 onChange={(e) => setRoleFilter(e.target.value)}
@@ -388,10 +423,28 @@ export default function UserManagementPage() {
                             )}
                         </div>
 
-                        {/* Pagination - Simplified for now */}
+                        {/* Pagination */}
                         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
                             <div className="text-sm text-gray-700 dark:text-gray-300">
-                                Showing <span className="font-medium">{users.length}</span> users
+                                Showing page <span className="font-medium">{page}</span> of <span className="font-medium">{totalPages}</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    disabled={page <= 1 || isLoading}
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    disabled={page >= totalPages || isLoading}
+                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                >
+                                    Next
+                                </Button>
                             </div>
                         </div>
                     </CardContent>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
+    if (process.env.NODE_ENV === 'development') return '/api/v1';
     const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     if (url.endsWith('/api/v1')) return url;
     return `${url}/api/v1`;
@@ -11,11 +12,13 @@ const apiClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
 
 // Request interceptor
 apiClient.interceptors.request.use(
     (config) => {
+        // Add Bearer token from localStorage as fallback for cookie-based auth
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('token');
             if (token) {

@@ -3,16 +3,18 @@
 
 import { Feature } from '@/lib/api/endpoints/features';
 import { motion } from 'framer-motion';
-import { Layers, Book, Trash2 } from 'lucide-react';
+import { Layers, Book, Trash2, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FeatureCardProps {
     feature: Feature;
     onDelete: (id: string) => void;
+    onEdit?: (feature: Feature) => void;
     canDelete: boolean;
+    canEdit?: boolean;
 }
 
-export function FeatureCard({ feature, onDelete, canDelete }: FeatureCardProps) {
+export function FeatureCard({ feature, onDelete, onEdit, canDelete, canEdit }: FeatureCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -60,11 +62,21 @@ export function FeatureCard({ feature, onDelete, canDelete }: FeatureCardProps) 
                         </div>
                     )}
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
+                    {canEdit && onEdit && (
+                        <button
+                            onClick={() => onEdit(feature)}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                            title="Edit Feature"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
                     {canDelete && (
                         <button
                             onClick={() => onDelete(feature.id)}
                             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            title="Delete Feature"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
