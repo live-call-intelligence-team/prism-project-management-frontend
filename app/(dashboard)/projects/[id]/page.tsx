@@ -74,6 +74,7 @@ import { ProjectSprints } from '@/components/projects/ProjectSprints';
 import { ProjectOverview } from '@/components/projects/ProjectOverview';
 import { ProjectFeedback } from '@/components/projects/ProjectFeedback';
 import { ProjectFileBrowser } from '@/components/projects/ProjectFileBrowser';
+import axios from 'axios';
 
 export default function ProjectDetailsPage() {
     const params = useParams();
@@ -93,6 +94,14 @@ export default function ProjectDetailsPage() {
         description: ''
     });
     const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+    const showProjectActionError = (err: unknown, fallback: string) => {
+        if (axios.isAxiosError(err) && err.response?.status === 403) {
+            error('Access denied');
+            return;
+        }
+        error(fallback);
+    };
 
     useEffect(() => {
         if (project) {
@@ -151,7 +160,8 @@ export default function ProjectDetailsPage() {
             setIsEditModalOpen(false);
         } catch (err) {
             console.error('Failed to update project:', err);
-            error('Failed to update project');
+            showProjectActionError(err, 'Failed to update project');
+            throw err;
         }
     };
 
@@ -166,7 +176,8 @@ export default function ProjectDetailsPage() {
             setIsAddMemberModalOpen(false);
         } catch (err) {
             console.error('Failed to add members:', err);
-            error('Failed to add members');
+            showProjectActionError(err, 'Failed to add members');
+            throw err;
         }
     };
 
@@ -184,9 +195,9 @@ export default function ProjectDetailsPage() {
             await projectsApi.update(project.id, settingsForm);
             success('Project settings updated successfully');
             fetchProject();
-        } catch (error) {
-            console.error('Failed to update project settings:', error);
-            // toast.error('Failed to update project settings');
+        } catch (err) {
+            console.error('Failed to update project settings:', err);
+            showProjectActionError(err, 'Failed to update project settings');
         } finally {
             setIsSavingSettings(false);
         }

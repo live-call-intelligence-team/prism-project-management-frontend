@@ -16,16 +16,21 @@ import {
 import Link from 'next/link';
 import { projectsApi } from '@/lib/api/endpoints/projects';
 import { issuesApi } from '@/lib/api/endpoints/issues';
+import { analyticsApi, getClientStatsLabel } from '@/lib/api/endpoints/analytics';
 import { PendingActionsWidget } from '@/components/client/PendingActionsWidget';
 import { UpcomingMilestonesWidget } from '@/components/client/UpcomingMilestonesWidget';
 import { RecentActivityFeed } from '@/components/client/RecentActivityFeed';
 import { DashboardStats } from '@/components/client/DashboardStats';
+import { useAuthStore } from '@/lib/store/authStore';
 
 export default function ClientDashboardPage() {
+    const authUser = useAuthStore(state => state.user);
+    const role = authUser?.role?.toUpperCase() || 'CLIENT';
     const [projects, setProjects] = useState<any[]>([]);
     const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
     const [upcomingMilestones, setUpcomingMilestones] = useState<any[]>([]);
+    const [clientStats, setClientStats] = useState<Record<string, unknown> | null>(null);
     const [loading, setLoading] = useState(true);
     const [userName, setUserName] = useState('Client');
 
@@ -88,6 +93,14 @@ export default function ClientDashboardPage() {
                 const pendingActions = await projectsApi.getPendingActions(10);
                 setPendingApprovals(pendingActions);
 
+                try {
+                    const statsData = await analyticsApi.getClientStats(role);
+                    setClientStats(statsData || null);
+                } catch (statsError) {
+                    // Keep dashboard functional if this scoped analytics widget is unavailable.
+                    console.error('Failed to fetch client stats', statsError);
+                }
+
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
             } finally {
@@ -96,7 +109,7 @@ export default function ClientDashboardPage() {
         };
 
         fetchData();
-    }, []);
+    }, [role]);
 
     if (loading) {
         return (
@@ -105,6 +118,10 @@ export default function ClientDashboardPage() {
             </div>
         );
     }
+
+    const clientStatEntries = Object.entries(clientStats || {})
+        .filter(([, value]) => typeof value === 'number')
+        .slice(0, 4);
 
     return (
         <div className="container mx-auto p-6 space-y-8 max-w-7xl">
@@ -120,6 +137,30 @@ export default function ClientDashboardPage() {
 
             {/* 2. Stats Cards */}
             <DashboardStats projects={projects} pendingActionsCount={pendingApprovals.length} />
+
+            {clientStats && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{getClientStatsLabel(role)}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {clientStatEntries.length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {clientStatEntries.map(([key, value]) => (
+                                    <div key={key} className="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                                        <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                                        </p>
+                                        <p className="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{String(value)}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Scoped client project analytics loaded.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
             {/* 3. My Projects */}
             <div className="space-y-4">
