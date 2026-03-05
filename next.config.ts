@@ -10,20 +10,18 @@ const nextConfig: NextConfig = {
     root: projectRoot,
   },
   async rewrites() {
-    // Proxy to local backend in development, production backend otherwise.
-    const isDev = process.env.NODE_ENV === 'development';
-    const destination = isDev
-      ? 'http://127.0.0.1:5006'
-      : 'https://api.powerfrill.com';
+    // Both frontend and backend run on the same server.
+    // The backend runs on port 5006 (configured in backend/.env).
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || 'http://127.0.0.1:5006';
 
     return [
       {
         source: '/api/v1/:path*',
-        destination: `${destination}/api/v1/:path*`,
+        destination: `${backendUrl}/api/v1/:path*`,
       },
       {
         source: '/socket.io/:path*',
-        destination: `${destination}/socket.io/:path*`,
+        destination: `${backendUrl}/socket.io/:path*`,
       }
     ];
   },
