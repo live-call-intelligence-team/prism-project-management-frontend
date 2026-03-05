@@ -101,8 +101,9 @@ apiClient.interceptors.response.use(
 
         if (error.code === 'ERR_NETWORK') {
             console.error('Network Error detected on:', originalRequest?.method?.toUpperCase(), originalRequest?.url);
-            console.error('Base URL:', originalRequest?.baseURL || apiClient.defaults.baseURL);
-            console.error('Complete URL:', (originalRequest?.baseURL || apiClient.defaults.baseURL) + (originalRequest?.url || ''));
+            console.error('Configured Base URL:', getBaseUrl());
+            console.error('Actual Base URL in request:', originalRequest?.baseURL || apiClient.defaults.baseURL);
+            console.error('Complete URL attempted:', (originalRequest?.baseURL || apiClient.defaults.baseURL) + (originalRequest?.url || ''));
             console.error('Possible causes: Backend is down, CORS mismatch, or incorrect URL.');
         }
 
