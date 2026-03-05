@@ -16,10 +16,10 @@ interface KanbanBoardProps {
     onIssueUpdate?: () => void;
 }
 
-const COLUMNS: { id: IssueStatus; title: string; color: string }[] = [
+const COLUMNS: { id: IssueStatus; title: string; color: string; wipLimit?: number }[] = [
     { id: 'TODO', title: 'To Do', color: 'bg-gray-100 dark:bg-gray-800' },
-    { id: 'IN_PROGRESS', title: 'In Progress', color: 'bg-blue-100 dark:bg-blue-900/20' },
-    { id: 'IN_REVIEW', title: 'In Review', color: 'bg-purple-100 dark:bg-purple-900/20' },
+    { id: 'IN_PROGRESS', title: 'In Progress', color: 'bg-blue-100 dark:bg-blue-900/20', wipLimit: 8 },
+    { id: 'IN_REVIEW', title: 'In Review', color: 'bg-purple-100 dark:bg-purple-900/20', wipLimit: 5 },
     { id: 'DONE', title: 'Done', color: 'bg-green-100 dark:bg-green-900/20' },
 ];
 
@@ -120,6 +120,7 @@ export function KanbanBoard({ issues, onIssueUpdate }: KanbanBoardProps) {
                         title={column.title}
                         count={groupedIssues[column.id].length}
                         color={column.color}
+                        wipLimit={column.wipLimit}
                     >
                         <SortableContext
                             items={groupedIssues[column.id].map((i) => i.id)}

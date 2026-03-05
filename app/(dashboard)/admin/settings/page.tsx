@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Mail, Shield, Plug, Save, FileText, Database, Sliders } from 'lucide-react';
+import { Settings as SettingsIcon, Mail, Shield, Plug, Save, FileText, Database, Sliders, GitBranch, Bell, Plus, X } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import Container from '@/components/ui/Container';
 import Button from '@/components/ui/Button';
@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
 import { settingsApi } from '@/lib/api/endpoints/settings';
 
-type SettingsTab = 'general' | 'email' | 'security' | 'integrations' | 'audit' | 'backup' | 'advanced';
+type SettingsTab = 'general' | 'email' | 'security' | 'workflow' | 'notifications' | 'integrations' | 'audit' | 'backup' | 'advanced';
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
@@ -65,6 +65,8 @@ export default function SettingsPage() {
         { id: 'general' as SettingsTab, label: 'General', icon: SettingsIcon },
         { id: 'email' as SettingsTab, label: 'Email', icon: Mail },
         { id: 'security' as SettingsTab, label: 'Security', icon: Shield },
+        { id: 'workflow' as SettingsTab, label: 'Workflow', icon: GitBranch },
+        { id: 'notifications' as SettingsTab, label: 'Notifications', icon: Bell },
         { id: 'integrations' as SettingsTab, label: 'Integrations', icon: Plug },
         { id: 'audit' as SettingsTab, label: 'Audit & Compliance', icon: FileText },
         { id: 'backup' as SettingsTab, label: 'Backup & Recovery', icon: Database },
@@ -226,6 +228,147 @@ export default function SettingsPage() {
                                         </div>
                                         <Button type="submit" variant="primary" isLoading={loading} leftIcon={<Save className="w-5 h-5" />}>
                                             Save Changes
+                                        </Button>
+                                    </form>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {activeTab === 'workflow' && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Workflow Configuration</CardTitle>
+                                    <CardDescription>Configure issue statuses, types, and priorities used across projects</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <form className="space-y-8" onSubmit={(e) => {
+                                        e.preventDefault();
+                                        handleSave('workflow', {
+                                            statuses: settings['workflow_config']?.statuses || ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'],
+                                            types: settings['workflow_config']?.types || ['TASK', 'BUG', 'STORY', 'FEATURE', 'EPIC'],
+                                            priorities: settings['workflow_config']?.priorities || ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+                                        });
+                                    }}>
+                                        {/* Issue Statuses */}
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Issue Statuses</h3>
+                                            <p className="text-sm text-gray-500 mb-3">Define the workflow statuses available for issues</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {(settings['workflow_config']?.statuses || ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE']).map((status: string, i: number) => (
+                                                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
+                                                        {status.replace(/_/g, ' ')}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Issue Types */}
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Issue Types</h3>
+                                            <p className="text-sm text-gray-500 mb-3">Available issue types for categorization</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {(settings['workflow_config']?.types || ['TASK', 'BUG', 'STORY', 'FEATURE', 'EPIC']).map((type: string, i: number) => {
+                                                    const typeEmojis: Record<string, string> = { BUG: '🐛', FEATURE: '✨', STORY: '📖', TASK: '✅', EPIC: '🏔️', SUB_TASK: '📋' };
+                                                    return (
+                                                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
+                                                            {typeEmojis[type] || '📌'} {type}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        {/* Priorities */}
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Priority Levels</h3>
+                                            <p className="text-sm text-gray-500 mb-3">Priority levels from highest to lowest severity</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {(settings['workflow_config']?.priorities || ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).map((prio: string, i: number) => {
+                                                    const prioColors: Record<string, string> = {
+                                                        LOW: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
+                                                        MEDIUM: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300',
+                                                        HIGH: 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300',
+                                                        CRITICAL: 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300',
+                                                    };
+                                                    return (
+                                                        <span key={i} className={cn('inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium', prioColors[prio] || 'bg-gray-100 text-gray-700')}>
+                                                            {prio}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                                            <p className="text-sm text-amber-700 dark:text-amber-300">
+                                                <strong>Note:</strong> Modifying workflow statuses, types or priorities will affect all existing projects. Changes to status names may require a data migration.
+                                            </p>
+                                        </div>
+
+                                        <Button type="submit" variant="primary" isLoading={loading} leftIcon={<Save className="w-5 h-5" />}>
+                                            Save Workflow Settings
+                                        </Button>
+                                    </form>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {activeTab === 'notifications' && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Notification Preferences</CardTitle>
+                                    <CardDescription>Configure default notification channels and triggers</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <form className="space-y-6" onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const formData = new FormData(e.currentTarget);
+                                        handleSave('notifications', Object.fromEntries(formData));
+                                    }}>
+                                        <div className="space-y-4">
+                                            <h3 className="font-semibold text-gray-900 dark:text-white">Default Channels</h3>
+                                            {[
+                                                { name: 'emailEnabled', label: 'Email Notifications', desc: 'Send notifications via email' },
+                                                { name: 'inAppEnabled', label: 'In-App Notifications', desc: 'Show notifications in the app bell icon' },
+                                                { name: 'slackEnabled', label: 'Slack Notifications', desc: 'Post notifications to Slack (requires integration)' },
+                                            ].map(channel => (
+                                                <div key={channel.name} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                    <div>
+                                                        <p className="font-medium text-gray-900 dark:text-white">{channel.label}</p>
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400">{channel.desc}</p>
+                                                    </div>
+                                                    <label className="relative inline-flex items-center cursor-pointer">
+                                                        <input name={channel.name} type="checkbox" className="sr-only peer" defaultChecked={channel.name !== 'slackEnabled'} />
+                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h3 className="font-semibold text-gray-900 dark:text-white">Notification Triggers</h3>
+                                            {[
+                                                { name: 'onAssignment', label: 'Task Assignment', desc: 'When assigned to a task' },
+                                                { name: 'onMention', label: '@Mentions', desc: 'When mentioned in a comment' },
+                                                { name: 'onStatusChange', label: 'Status Changes', desc: 'When a task status changes' },
+                                                { name: 'onSprintStart', label: 'Sprint Events', desc: 'Sprint start and end notifications' },
+                                                { name: 'onDeadline', label: 'Deadline Reminders', desc: '24h and 1h before due date' },
+                                            ].map(trigger => (
+                                                <div key={trigger.name} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                    <div>
+                                                        <p className="font-medium text-gray-900 dark:text-white">{trigger.label}</p>
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400">{trigger.desc}</p>
+                                                    </div>
+                                                    <label className="relative inline-flex items-center cursor-pointer">
+                                                        <input name={trigger.name} type="checkbox" className="sr-only peer" defaultChecked />
+                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <Button type="submit" variant="primary" isLoading={loading} leftIcon={<Save className="w-5 h-5" />}>
+                                            Save Notification Settings
                                         </Button>
                                     </form>
                                 </CardContent>

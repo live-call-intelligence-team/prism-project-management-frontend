@@ -23,6 +23,11 @@ export const authApi = {
         return response.data;
     },
 
+    register: async (data: any): Promise<AuthResponse> => {
+        const response = await apiClient.post('/auth/register', data);
+        return response.data;
+    },
+
     logout: async (): Promise<void> => {
         await apiClient.post('/auth/logout');
     },

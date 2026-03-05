@@ -24,6 +24,7 @@ import {
     LogOut,
     Calendar,
     FileCheck,
+    Clock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store/authStore';
@@ -68,7 +69,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
     };
 
     const navItems = [
-        // Common / Employee / Admin
+        // Admin nav items
         { name: 'Dashboard', href: getDashboardPath(), icon: LayoutDashboard },
         { name: 'My Work', href: '/my-work', icon: CheckCircle },
         { name: 'Projects', href: '/projects', icon: FolderKanban },
@@ -90,6 +91,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
         { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
         { name: 'My Issues', href: '/client/my-issues', icon: ListTodo },
         { name: 'My Projects', href: '/projects', icon: FolderKanban },
+        { name: 'Team Performance', href: '/client/team-performance', icon: Users },
         { name: 'Settings', href: '/client/settings', icon: Settings },
     ];
 
@@ -98,6 +100,7 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
         { name: 'Attendance', href: '/employee/attendance', icon: Calendar },
         { name: 'Leaves', href: '/employee/leave-management', icon: FileCheck },
         { name: 'Board', href: '/employee/board', icon: Kanban },
+        { name: 'Daily Update', href: '/employee/daily-update', icon: Clock },
         { name: 'My Work', href: '/my-work', icon: CheckCircle },
         { name: 'Settings', href: '/settings', icon: Settings },
     ];
@@ -105,9 +108,19 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
     const pmNavItems = [
         { name: 'Dashboard', href: '/pm/dashboard', icon: LayoutDashboard },
         { name: 'Projects', href: '/projects', icon: FolderKanban },
-        { name: 'Sprints', href: '/sprints', icon: Timer }, // PMs manage sprints often
+        { name: 'Sprints', href: '/sprints', icon: Timer },
         { name: 'Issues', href: '/issues', icon: ListTodo },
         { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+        { name: 'Settings', href: '/settings', icon: Settings },
+    ];
+
+    const scrumNavItems = [
+        { name: 'Dashboard', href: '/scrum/dashboard', icon: LayoutDashboard },
+        { name: 'Sprint Board', href: '/scrum/board', icon: Kanban },
+        { name: 'Sprint Planning', href: '/scrum/sprint-planning', icon: Timer },
+        { name: 'Backlog', href: '/scrum/backlog', icon: List },
+        { name: 'Issues', href: '/issues', icon: ListTodo },
+        { name: 'Reports', href: '/scrum/reports', icon: BarChart3 },
         { name: 'Settings', href: '/settings', icon: Settings },
     ];
 
@@ -119,8 +132,10 @@ export function Sidebar({ onCollapsedChange, mobileOpen = false, onMobileClose }
         filteredNavItems = employeeNavItems;
     } else if (role === 'PROJECT_MANAGER') {
         filteredNavItems = pmNavItems;
+    } else if (role === 'SCRUM_MASTER') {
+        filteredNavItems = scrumNavItems;
     } else {
-        // Admin / Scrum Master
+        // Admin
         filteredNavItems = navItems;
     }
 

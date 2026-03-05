@@ -74,6 +74,11 @@ import { ProjectSprints } from '@/components/projects/ProjectSprints';
 import { ProjectOverview } from '@/components/projects/ProjectOverview';
 import { ProjectFeedback } from '@/components/projects/ProjectFeedback';
 import { ProjectFileBrowser } from '@/components/projects/ProjectFileBrowser';
+import { ProjectTeam } from '@/components/projects/ProjectTeam';
+import { DailyTracker } from '@/components/projects/DailyTracker';
+import AdminDailyTracker from '@/components/projects/AdminDailyTracker';
+import AdvancedDailyUpdate from '@/components/projects/AdvancedDailyUpdate';
+import { TeamPerformance } from '@/components/projects/TeamPerformance';
 import axios from 'axios';
 
 export default function ProjectDetailsPage() {
@@ -88,7 +93,7 @@ export default function ProjectDetailsPage() {
     const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const [activeTab, setActiveTab] = useState<'overview' | 'backlog' | 'epics' | 'features' | 'board' | 'issues' | 'files' | 'team' | 'settings' | 'sprints' | 'feedback'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'backlog' | 'epics' | 'features' | 'board' | 'issues' | 'files' | 'team' | 'settings' | 'sprints' | 'feedback' | 'dailyTracker' | 'teamPerformance'>('overview');
     const [settingsForm, setSettingsForm] = useState({
         name: '',
         description: ''
@@ -218,9 +223,11 @@ export default function ProjectDetailsPage() {
                 { id: 'features', label: 'Features', icon: Book },
             ] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'dailyTracker', label: 'Daily Tracker', icon: Calendar },
             { id: 'files', label: 'Files', icon: FileText },
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'team', label: 'Team', icon: Users },
+            { id: 'teamPerformance', label: 'Performance', icon: BarChart3 },
         ];
     } else if (role === 'SCRUM_MASTER') {
         tabs = [
@@ -232,9 +239,11 @@ export default function ProjectDetailsPage() {
             ] : []),
             ...(project.usesSprints ? [{ id: 'sprints', label: 'Sprints', icon: Calendar }] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'dailyTracker', label: 'Daily Tracker', icon: Calendar },
             { id: 'files', label: 'Files', icon: FileText },
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'team', label: 'Team', icon: Users },
+            { id: 'teamPerformance', label: 'Performance', icon: BarChart3 },
         ];
     } else if (role === 'CLIENT') {
         // ... Client tabs same ...
@@ -258,15 +267,18 @@ export default function ProjectDetailsPage() {
             ] : []),
             ...(project.usesSprints ? [{ id: 'sprints', label: 'Sprints', icon: Calendar }] : []),
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'dailyTracker', label: 'Daily Tracker', icon: Calendar },
             { id: 'files', label: 'Files', icon: FileText },
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'team', label: 'Team', icon: Users },
+            { id: 'teamPerformance', label: 'Performance', icon: BarChart3 },
         ];
     } else {
         // Employee
         tabs = [
             { id: 'board', label: 'Board', icon: LayoutGrid },
             { id: 'issues', label: 'Issues', icon: ListTodo },
+            { id: 'dailyTracker', label: 'Daily Tracker', icon: Calendar },
             { id: 'files', label: 'Files', icon: FileText },
         ];
     }
@@ -406,88 +418,22 @@ export default function ProjectDetailsPage() {
 
                 {
                     activeTab === 'team' && (
-                        <div className="space-y-6 p-4 md:p-6">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Team Members ({(project as any).members?.length || 0})
-                                </h2>
-                                <button
-                                    onClick={() => setIsAddMemberModalOpen(true)}
-                                    className={cn(
-                                        'flex items-center px-4 py-2 rounded-lg font-medium',
-                                        'bg-gradient-to-r from-primary-500 to-accent-purple',
-                                        'text-white shadow-lg',
-                                        'hover:shadow-glow-purple hover:scale-[1.02]',
-                                        'active:scale-[0.98]',
-                                        'transition-all duration-200'
-                                    )}
-                                >
-                                    <UserPlus className="w-4 h-4 mr-2" />
-                                    Add Member
-                                </button>
-                            </div>
+                        <ProjectTeam projectId={project.id} onAddMember={() => setIsAddMemberModalOpen(true)} />
+                    )
+                }
 
-                            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full min-w-[600px]">
-                                        <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                    Member
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                    Role
-                                                </th>
-                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                    Actions
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                            {((project as any).members || []).map((member: any) => {
-                                                const RoleIcon = getRoleIcon(member.role);
-                                                return (
-                                                    <motion.tr
-                                                        key={member.id}
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: 1 }}
-                                                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                                                    >
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center">
-                                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-purple flex items-center justify-center text-white font-medium mr-3">
-                                                                    {getInitials(member.name)}
-                                                                </div>
-                                                                <div>
-                                                                    <div className="font-medium text-gray-900 dark:text-white">
-                                                                        {member.name}
-                                                                    </div>
-                                                                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                                        {member.email}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center">
-                                                                <RoleIcon className={cn('w-4 h-4 mr-2', getRoleColor(member.role))} />
-                                                                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                                    {member.role}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-right">
-                                                            <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                                                <MoreVertical className="w-5 h-5 text-gray-400" />
-                                                            </button>
-                                                        </td>
-                                                    </motion.tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                {
+                    activeTab === 'dailyTracker' && (
+                        (role === 'ADMIN' || role === 'PROJECT_MANAGER' || role === 'SCRUM_MASTER')
+                            ? <AdminDailyTracker projectId={project.id} />
+                            : <AdvancedDailyUpdate projectId={project.id} />
+                    )
+                }
+
+                {
+                    activeTab === 'teamPerformance' && (
+                        <div className="p-4 md:p-6">
+                            <TeamPerformance projectId={project.id} />
                         </div>
                     )
                 }

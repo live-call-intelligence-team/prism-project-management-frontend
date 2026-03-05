@@ -1,5 +1,15 @@
 import apiClient from '../client';
 
+export interface CommentAttachment {
+    id: string;
+    filename: string;
+    originalName: string;
+    mimetype: string;
+    size: number;
+    fileUrl: string;
+    createdAt: string;
+}
+
 export interface Comment {
     id: string;
     issueId: string;
@@ -9,6 +19,7 @@ export interface Comment {
     isClientVisible: boolean;
     createdAt: string;
     updatedAt: string;
+    attachments?: CommentAttachment[];
     user?: {
         id: string;
         firstName: string;
@@ -20,7 +31,7 @@ export interface Comment {
 }
 
 export const commentsApi = {
-    // Get comments for an issue
+    // Get comments for an issue (now includes attachments)
     getIssueComments: async (issueId: string): Promise<Comment[]> => {
         const response = await apiClient.get<{ success: boolean; data: { comments: Comment[] } }>(
             `/issues/${issueId}/comments`
@@ -28,11 +39,32 @@ export const commentsApi = {
         return response.data.data.comments || [];
     },
 
-    // Create a new comment
-    create: async (issueId: string, content: string, mentions?: string[]): Promise<Comment> => {
+    // Create a new comment with optional file attachments
+    create: async (
+        issueId: string,
+        content: string,
+        mentionIds?: string[],
+        files?: File[]
+    ): Promise<Comment> => {
+        const formData = new FormData();
+        formData.append('content', content);
+
+        if (mentionIds && mentionIds.length > 0) {
+            formData.append('mentionIds', JSON.stringify(mentionIds));
+        }
+
+        if (files && files.length > 0) {
+            files.forEach((file) => {
+                formData.append('files', file);
+            });
+        }
+
         const response = await apiClient.post<{ success: boolean; data: { comment: Comment } }>(
             `/issues/${issueId}/comments`,
-            { content, mentions }
+            formData,
+            {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            }
         );
         return response.data.data.comment;
     },
