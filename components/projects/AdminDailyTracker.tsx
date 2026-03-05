@@ -63,12 +63,17 @@ export default function AdminDailyTracker({ projectId }: AdminDailyTrackerProps)
     const loadData = async () => {
         try {
             setLoading(true);
+            console.log(`[DailyTracker FE] Loading reports for project ${projectId}, date ${date}`);
             const data = await dailyReportsApi.getProjectReports(projectId, date);
+            console.log(`[DailyTracker FE] API response:`, { reports: data.reports?.length, missingMembers: data.missingMembers?.length, stats: data.stats });
             setReports(data.reports || []);
             setMissingMembers(data.missingMembers || []);
             setStats(data.stats || { totalMembers: 0, submitted: 0, totalHours: 0, openBlockers: 0 });
             setLastUpdated(new Date());
-        } catch (e) { console.error('Failed to load reports:', e); }
+        } catch (e: any) {
+            console.error('[DailyTracker FE] Failed to load reports:', e?.message || e);
+            console.error('[DailyTracker FE] Error details:', e?.response?.status, e?.response?.data);
+        }
         finally { setLoading(false); }
     };
 
