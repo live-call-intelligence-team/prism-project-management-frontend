@@ -72,7 +72,9 @@ export default function AdminDailyTracker({ projectId }: AdminDailyTrackerProps)
             setLastUpdated(new Date());
         } catch (e: any) {
             console.error('[DailyTracker FE] Failed to load reports:', e?.message || e);
-            console.error('[DailyTracker FE] Error details:', e?.response?.status, e?.response?.data);
+            // Even if reports fail, we still show employees from projectMembers
+            setReports([]);
+            setMissingMembers([]);
         }
         finally { setLoading(false); }
     };
@@ -80,26 +82,63 @@ export default function AdminDailyTracker({ projectId }: AdminDailyTrackerProps)
     const loadMembers = async () => {
         try {
             const data = await projectsApi.getMembers(projectId);
+            console.log(`[DailyTracker FE] Loaded ${data?.length || 0} project members`);
             setProjectMembers((data || []).map((m: any) => ({ ...(m.user || m), memberRole: m.role })));
-        } catch { setProjectMembers([]); }
+        } catch (e: any) {
+            console.error('[DailyTracker FE] Failed to load members:', e?.message || e);
+            setProjectMembers([]);
+        }
     };
 
-    // Build unified employee list
+    // Build unified employee list — uses projectMembers as PRIMARY source (reliable)
+    // Then overlays report data from dailyReportsApi on top
     const allEmployees: EmployeeRow[] = useMemo(() => {
+        // Roles to exclude — only show employees
+        const excludedRoles = ['admin', 'project_manager', 'scrum_master', 'client'];
         const rows: EmployeeRow[] = [];
         const seenIds = new Set<string>();
 
-        // Submitted employees
-        reports.forEach(r => {
-            if (r.user) {
-                seenIds.add(r.userId);
-                const projectMember = projectMembers.find(m => m.id === r.userId);
-                let roleStr = projectMember?.memberRole || r.user.role || 'Member';
+        // PRIMARY SOURCE: projectMembers (same API as Team tab — always works)
+        projectMembers.forEach(m => {
+            const id = m.id;
+            if (!id || seenIds.has(id)) return;
 
-                // Determine Status
+            // Filter out non-employee roles
+            const memberRole = (m.memberRole || '').toLowerCase();
+            const userRole = (m.role || '').toLowerCase();
+            if (excludedRoles.includes(memberRole) || excludedRoles.includes(userRole)) return;
+
+            seenIds.add(id);
+
+            // Check if this member has a submitted report
+            const report = reports.find(r => r.userId === id);
+
+            let status: 'SUBMITTED' | 'NOT SUBMITTED' | 'PENDING' = 'NOT SUBMITTED';
+            if (report) {
+                if (report.standupSubmitted && report.summarySubmitted) status = 'SUBMITTED';
+                else if (report.standupSubmitted || (report.entries && report.entries.length > 0)) status = 'PENDING';
+            }
+
+            rows.push({
+                id,
+                firstName: m.firstName || '',
+                lastName: m.lastName || '',
+                email: m.email || '',
+                role: m.role || 'EMPLOYEE',
+                avatar: m.avatar,
+                memberRole: m.memberRole || 'Member',
+                report,
+                status
+            });
+        });
+
+        // SECONDARY: Also add any users from reports that aren't already included
+        // (edge case: someone submitted a report but isn't in projectMembers list)
+        reports.forEach(r => {
+            if (r.user && !seenIds.has(r.userId)) {
+                seenIds.add(r.userId);
                 let status: 'SUBMITTED' | 'PENDING' = 'PENDING';
                 if (r.standupSubmitted && r.summarySubmitted) status = 'SUBMITTED';
-                else if (r.standupSubmitted || (r.entries && r.entries.length > 0)) status = 'PENDING';
 
                 rows.push({
                     id: r.userId,
@@ -108,37 +147,21 @@ export default function AdminDailyTracker({ projectId }: AdminDailyTrackerProps)
                     email: r.user.email,
                     role: r.user.role,
                     avatar: r.user.avatar,
-                    memberRole: roleStr,
+                    memberRole: r.user.role || 'Member',
                     report: r,
                     status
                 });
             }
         });
 
-        // Missing employees
-        missingMembers.forEach(m => {
-            if (!seenIds.has(m.id)) {
-                seenIds.add(m.id);
-                // Also try to find in project members, or rely on the backend pre-populated memberRole
-                const projectMember = projectMembers.find(pm => pm.id === m.id);
-                let roleStr = projectMember?.memberRole || m.memberRole || m.role || 'Member';
-
-                rows.push({
-                    id: m.id,
-                    firstName: m.firstName,
-                    lastName: m.lastName,
-                    email: m.email,
-                    role: m.role,
-                    avatar: m.avatar,
-                    memberRole: roleStr,
-                    report: undefined,
-                    status: 'NOT SUBMITTED'
-                });
-            }
-        });
+        // Update stats from projectMembers count if API stats returned 0
+        if (rows.length > 0 && stats.totalMembers === 0) {
+            const submitted = rows.filter(r => r.status === 'SUBMITTED').length;
+            setStats(prev => ({ ...prev, totalMembers: rows.length, submitted }));
+        }
 
         return rows;
-    }, [reports, missingMembers, projectMembers]);
+    }, [reports, projectMembers, stats.totalMembers]);
 
     // Get unique teams for filter
     const teams = useMemo(() => {
