@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-    if (process.env.NODE_ENV === 'development') return '/api/v1';
-    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    if (url.endsWith('/api/v1')) return url;
-    return `${url}/api/v1`;
+    // Always use relative path — Next.js rewrites in next.config.ts
+    // will proxy /api/v1/* to the correct backend (localhost in dev,
+    // api.powerfrill.com in production). This avoids all CORS issues.
+    return '/api/v1';
 };
 
 const apiClient = axios.create({
